@@ -1,0 +1,254 @@
+{% extends 'nafcbase.html' %}
+{% load static %}
+{% block content %}
+
+<div class="body">
+	<div class="home" style="padding: 10px 10px 5px 10px;">
+        <script src="{% static 'js/tableUtility.js' %}"></script>
+        
+        <h3>All Children's Information</h3>
+
+        {% if noChild %}
+            <p>Sorry, there are currently no children that have been added to the database.</p>
+        {% else %}
+            <p style="max-width: 970px;">Click on any green header in the table below to sort the data based on the values in the corresponding column.
+                Clicking a header repeatedly will alternate between an ascending and descending sort. <br>
+                Please refresh this page to reflect any changes made to the data shown in the table.
+            </p>
+        {% endif %}
+
+        
+        {% for message in messages %}
+            {% if message.tags == "success" %}
+                <h3 style="background-color:rgb(162, 255, 68)">ALERT: {{message}}</h3>
+            {% elif message.tags == "error" %}
+                <h3 style="background-color:tomato">ALERT: {{message}}</h3>
+            {% else %}
+                <h3 style="background-color:rgb(74, 255, 255)">ALERT: {{message}}</h3>
+            {% endif %}
+        {% endfor %}
+
+        <!--ADD DROPDOWN TO SELECT FAMILY AND ADD CHILD TO-->
+
+
+        
+        <div class="newDiv collapsibleContainer">
+            <button type="button" class="collapsible generalColl thin" id="filterColl">Search filters & sorting</button>
+            <div class="collapsibleContent">
+                <span class="alignTab">
+                {% for key, val in infoList.items %}
+                    {% if forloop.counter0|divisibleby:7 and forloop.counter0 != 0 %}
+                        </span>
+                        <span class="alignTab">
+                    {% endif %}
+                    
+                    <p class="slim">Filter by {{key}}: <input type="text" class="sBar" id="bar{{val}}"></p>
+                {% endfor %}
+                </span>
+
+                <br><br><button id="clearFil" class="normal">Clear filters</button>
+                <button id="goSearch" class="go">Search</button>
+
+                <p>You may also hit the enter key to search.</p>
+
+        </div><br><br>
+
+        <h4 style="padding:0px; margin:0px;" id="totCount">--Loading--</h4>
+        <h4 style="padding:0px; margin:0px;" id="matchCount">--Loading--</h4>
+        <br>
+
+
+        {% if not noChild %}
+            <table class="basicInfo tableNums" id="myTable">
+                <thead>
+                    {% csrf_token %}
+                    {% for key, val in infoList.items %}
+                        <th scope="col" onclick="sortTable('{{val}}')">{{key}}</th>
+                    {% endfor %}
+                    <th scope="col">Manage</th>
+
+                </thead>
+                <tbody id="tests-table">
+                
+                </tbody>
+            </table>
+
+        {% endif %}
+
+
+        <script>
+            var tests = []
+            var numInd = '{{infoList}}'.split(':').length - 1
+
+            var coll = $(`.collapsible`)
+            coll.on("click", function() {
+                $(this).toggleClass("active")
+                var content = $(this).next()
+                if (content.css("maxHeight") != "0px"){
+                    content.css("maxHeight", "0px")
+                } else {
+                    content.css("maxHeight", content.prop("scrollHeight") + "px")
+                }
+            })
+            
+
+            var dataUrl = '/get-child-data-array'
+            $.ajax({
+                method:'GET',
+                url:dataUrl,
+                success:function(response){
+                    tests = response
+                    
+                    for (var i in tests){
+                        addRow(tests[i])
+                    }
+                    rows = $('#tests-table').children('tr')
+                    
+                    $('#totCount').text(`${tests.length} children in total`)
+                    $('#matchCount').text(`${tests.length} children match the current search filters`)
+                }
+            })
+        
+        
+            var resLen = 0
+            function addRow(obj){
+                resLen = obj.result.length
+                for (var j = 0; j < 700; j++)
+                {
+                    var row = `<tr scope="row" class="test-row-${obj.id}">`
+                    for (var i = 0; i < resLen; i++)
+                    {
+                        row += `<td id="result-${obj.id}-${i}" data-index="${i}" data-testid="${obj.id}" class="oneLineData">${obj.result[i]}</td>`
+                    }
+    
+                    row += `<td class="oneLineData">`
+                    if (obj.edit)
+                    {
+                        row += `<a href='update-child/${obj.id}' target="_blank"><button class="normal">Edit...</button></a>`
+                    }
+                    row += `</td></tr>`
+                    $('#tests-table').append(row)
+                }
+                
+            }
+            
+            
+        
+            /*function deleteTest(){
+                var testid = $(this).data('testid')
+
+                var deleteBtn = $(`#delete-${testid}`)
+                var saveBtn = $(`#save-${testid}`)
+                var cancelBtn = $(`#cancel-${testid}`)
+                var confirmBtn = $(`#confirm-${testid}`)
+
+                deleteBtn.addClass('hidden')
+                saveBtn.addClass('hidden')
+                cancelBtn.removeClass('hidden')
+                confirmBtn.removeClass('hidden')
+            }
+        
+            function cancelDeletion(){
+                var testid = $(this).data('testid')
+
+                var deleteBtn = $(`#delete-${testid}`)
+                var saveBtn = $(`#save-${testid}`)
+                var cancelBtn = $(`#cancel-${testid}`)
+                var confirmBtn = $(`#confirm-${testid}`)
+        
+                deleteBtn.removeClass('hidden')
+                saveBtn.removeClass('hidden')
+                cancelBtn.addClass('hidden')
+                confirmBtn.addClass('hidden')
+            }
+        
+            function confirmDeletion(){
+                var testid = $(this).data('testid')
+                var row = $(`.test-row-${testid}`)
+                row.remove()
+            }*/
+
+            
+            var rows
+            var toSearch = [], theInd = 0, validCells, validRows, allVal = true
+            for (var i = 0; i < numInd; i++)
+            {
+                toSearch.push("")
+            }
+            
+            function makeChange()
+            {
+                var curStr = ""
+                allVal = true
+                for(var i=0; i < toSearch.length; i++)
+                {
+                    if (toSearch[i] != "")
+                    {
+                        allVal = false
+                        curStr += `:has(td:nth-child(${i+1}):icontains('${toSearch[i]}'))`
+                    }
+                }
+                if (allVal)
+                {
+                    validRows = rows
+                    rows.show()
+                }
+                else
+                {
+                    validRows = rows.filter(curStr)
+                    validRows.show()
+                    rows.not(validRows).hide()
+                }
+                
+                $('#matchCount').text(`${validRows.length} children match the current search filters`)
+
+                /*var curStr = 'td'
+                validRows = rows
+                for(var i=0; i < toSearch.length; i++)
+                {
+                    if (true)
+                    {
+                        validRows = validRows.has(`:nth-child(${i+1}):icontains('${toSearch[i]}')`)
+                    }
+                    //toSearch[i] != ""
+                }
+                validRows.show()
+                rows.not(validRows).hide()
+                $('#matchCount').text(`${validRows.length} users match the current search filters`)*/
+            
+                /*validCells = rows.find(`td:nth-child(${ind+1}):icontains('${toSearch[ind]}')`)
+                validCells.parent().show()
+                rows.not(validCells.parent()).hide()
+                $('#matchCount').text(`${validCells.length} users match the current search filters`)*/
+            }
+            
+            $('.sBar').on('input', function() {
+                toSearch[Number($(this).attr('id').slice('3'))] = $(this).val()
+            })
+            
+            $('.sBar').on('keypress', function(e) {
+                if (e.which == 13)
+                {
+                    makeChange()
+                }
+            })
+
+            $('#goSearch').on('click', function() {
+                makeChange()
+            })
+
+            $('#clearFil').on('click', function(){
+                $('.sBar').val("")
+                for (var i = 0; i < toSearch.length; i++)
+                {
+                    toSearch[i] = ""
+                }
+            })
+
+            
+        </script>
+	</div>
+</div>
+
+{% endblock %}
+

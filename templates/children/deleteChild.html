@@ -1,0 +1,33 @@
+
+{% extends 'nafcbase.html' %}
+{% load static %}
+{% block content %}
+
+<div class="body">
+	<div class="home">
+		<div class="section">
+
+            <p>Are you sure you want to delete {{child}}? This cannot be undone!</p>
+			{% for message in messages %}
+				{% if message.tags == "success" %}
+					<h3 style="background-color:rgb(162, 255, 68)">ALERT: {{message}}</h3>
+				{% elif message.tags == "error" %}
+					<h3 style="background-color:tomato">ALERT: {{message}}</h3>
+				{% else %}
+					<h3 style="background-color:rgb(74, 255, 255)">ALERT: {{message}}</h3>
+				{% endif %}
+			{% endfor %}
+
+            <form action="{% url 'delete-child' child.id %}" method="POST">
+				{% csrf_token %}
+				<a href="{{redir}}"><button type="button" class="go">Cancel</button></a>
+
+				<input type="submit" class="danger" value="Confirm">
+			</form>
+
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+

@@ -1,0 +1,175 @@
+{% extends 'nafcbase.html' %}
+{% load static %}
+{% block content %}
+
+<div class="body">
+	<div class="home">
+		<div class="section">
+
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+			
+
+
+            <h2>View All Requests</h2>
+            <p>Here, you can find all item requests, sorted from oldest to latest. 
+                Click on any request below to expand it and see details.
+            </p>
+            <p>
+                A (P) next to a user's name or request denotes that they have a pending request (they submitted it recently, and NAFC hasn't acted on it yet).<br>
+                A (C) means that the items for a request are currently being collected.<br>
+                A (R) means that the items for a request are ready to be delivered/picked up.<br>
+                A (F) denotes that the family has received the items and the request has been fulfilled.<br>
+                A (N) means that the family has never made a request.
+            </p>
+            <p>
+                NOTE: A user may make a request or change their preferred method of
+                receiving at any time. If you ever make multiple printouts for a given user,
+                please know that a new printout may differ from an older one; if so, 
+                ensure that you follow the information on <strong>the newest one</strong>.  
+            </p>
+
+            <p>Options: 
+                {% for one in btns%}
+                    <a href="/view-all-requests/{{one.link}}"><button class="normal">{{one.desc}}</button></a>  
+                {% endfor %}
+            </p>
+            <br><br>
+
+            {% for message in messages %}
+                {% if message.tags == "success" %}
+                    <h3 style="background-color:rgb(162, 255, 68)">ALERT: {{message}}</h3>
+                {% elif message.tags == "error" %}
+                    <h3 style="background-color:tomato">ALERT: {{message}}</h3>
+                {% else %}
+                    <h3 style="background-color:rgb(74, 255, 255)">ALERT: {{message}}</h3>
+                {% endif %}
+            {% endfor %}
+            
+            <strong>Filter users: </strong>
+            <input type="text" id="bar" size="100"><br><br>
+
+            <div class="newDiv" id="usersContainer">
+                {% if group == "1" %}
+                    {% for oneUser in usersList %}
+                        <div class="newDiv collapsibleContainer">
+                            <button type="button" class="collapsible thin userBtn">{{oneUser.name}}</button>
+                            <div class="collapsibleContent">
+                                {% if oneUser.button != "None" %}
+                                    <br>
+                                    <a href="/get-request-report/{{oneUser.btnId}}"><button class="go">{{oneUser.button}}</button></a>
+                                    <br>
+                                {% endif %}
+                                <br>
+                                {% for oneReq in oneUser.data %}
+                                    
+                                    <div class="newDiv collapsibleContainer">
+                                        <button type="button" class="collapsible nested light thin">{{oneReq.childDateInfo}}</button>
+                                        <div class="collapsibleContent">
+                                            <br>
+                                            <strong>Method of Receiving: </strong>
+                                            {% for detail in oneReq.receiving.info %}
+                                                {{detail}}, 
+                                            {% endfor %}
+
+                                            {% if not oneReq.receiving %}
+                                                <strong>(The preferred method of receiving these items hasn't been specified.)</strong>
+                                            {% endif %}
+                                            <br><br>
+
+                                            <strong>Requested items:</strong><br>
+                                            {% for name, value in oneReq.fields %}
+                                                {% if value %}
+                                                    -{{ name }}{{ value }}
+                                                    <br>
+                                                {% endif %}
+                                            {% endfor %}
+                                            <br>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                                <br>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% if group == "0" %}
+                    {% for oneReq in iRequests %}
+                        <div class="newDiv collapsibleContainer">
+                            <button type="button" class="collapsible light thin">{{oneReq.name}}</button>
+                            <div class="collapsibleContent">
+                                <br>
+                                <strong>Method of Receiving: </strong>
+                                {% for detail in oneReq.receiving.info %}
+                                    {{detail}}, 
+                                {% endfor %}
+
+                                {% if not oneReq.receiving %}
+                                    <strong>(The preferred method of receiving these items hasn't been specified.)</strong>
+                                {% endif %}
+                                <br><br>
+
+                                <strong>Requested items:</strong><br>
+                                {% for name, value in oneReq.fields %}
+                                    {% if value %}
+                                        -{{ name }}{{ value }}
+                                        <br>
+                                    {% endif %}
+                                {% endfor %}
+                                <br>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            
+
+		</div>
+
+
+
+        <script>
+            var coll = document.getElementsByClassName("collapsible")
+            var i
+
+            for (i = 0; i < coll.length; i++) {
+                coll[i].addEventListener("click", function() {
+                    this.classList.toggle("active")
+                    var content = this.nextElementSibling
+                    if (content.style.maxHeight){
+                        content.style.maxHeight = null
+                    } else {
+                        var totalH = content.scrollHeight
+
+                        var nested = content.getElementsByClassName("nested")
+                        for (var j = 0; j < nested.length; j++)
+                        {
+                            totalH += nested[j].nextElementSibling.scrollHeight
+                        }
+
+                        content.style.maxHeight = totalH + "px"
+                    }
+                })
+            }
+
+            jQuery.expr[':'].icontains = function(a, i, m) {
+                return jQuery(a).text().toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
+            }
+
+            $('#bar').on('input', function() {
+                var toSearch = $(this).val()
+                var children =  $('#usersContainer').find('.userBtn')
+
+                children.filter(`:not(:icontains('${toSearch}'))`).parent().hide()
+                children.filter(`:icontains('${toSearch}')`).parent().show()
+
+                // $('#usersContainer').children(`.br:icontains('${toSearch}')`).show()
+                // $('#usersContainer').children(`.br:not(:icontains('${toSearch}'))`).hide()
+            })
+
+        </script>
+	</div>
+</div>
+
+{% endblock %}
+

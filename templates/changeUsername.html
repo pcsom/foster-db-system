@@ -1,0 +1,32 @@
+{% extends 'nafcbase.html' %}
+{% load static %}
+{% block content %}
+
+<div class="body">
+	<div class="home">
+		<div class="section">
+            <h3>Username Change</h3>
+
+
+            <form method="post">
+                {% csrf_token %}
+
+                {% for message in messages %}
+                    {% if message.tags == "success" %}
+                        <h3 style="background-color:rgb(162, 255, 68)">ALERT: {{message}}</h3>
+                    {% elif message.tags == "error" %}
+                        <h3 style="background-color:tomato">ALERT: {{message}}</h3>
+                    {% else %}
+                        <h3 style="background-color:rgb(74, 255, 255)">ALERT: {{message}}</h3>
+                    {% endif %}
+                {% endfor %}
+
+                <label for="updateUsername">Enter New Username:</label>
+                <input type="text" name="updateUsername" value="{{username}}">
+                <input type="Submit" name="Update Username" value="Update Username" class="go">
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

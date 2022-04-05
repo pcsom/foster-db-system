@@ -1,0 +1,359 @@
+{% extends 'nafcbase.html' %}
+{% load static %}
+{% block content %}
+
+<div class="body">
+	<div class="home" style="padding: 10px 10px 5px 10px;">
+
+        <script src="{% static 'js/tableUtility.js' %}"></script>
+        <script src="{% static 'js/collapsible.js' %}"></script>
+
+        
+
+        <h3>Donor Log</h3>
+        <p style="max-width: 970px;">Click on any green header in the table below to sort the data based on the values in the corresponding column.
+            Clicking a header repeatedly will alternate between an ascending and descending sort.  <br>
+            Please refresh this page to reflect any changes made to the data shown in the table.
+        </p>
+
+        {% for message in messages %}
+            {% if message.tags == "success" %}
+                <h3 style="background-color:rgb(162, 255, 68)">ALERT: {{message}}</h3>
+            {% elif message.tags == "error" %}
+                <h3 style="background-color:tomato">ALERT: {{message}}</h3>
+            {% else %}
+                <h3 style="background-color:rgb(74, 255, 255)">ALERT: {{message}}</h3>
+            {% endif %}
+        {% endfor %}
+
+        <div class="newDiv" id="alerts"></div>
+
+        <a href="/add-donor-entry"><button id="add-entry" class="normal">Add a donor log entry</button></a><br><br>
+
+        <div class="newDiv collapsibleContainer">
+            <button type="button" class="collapsible generalColl thin" id="filterColl">Search filters & sorting</button>
+            <div class="collapsibleContent">
+                <span class="alignTab">
+                {% for one in infoList %}
+                    {% if forloop.counter0|divisibleby:7 and forloop.counter0 != 0 %}
+                        </span>
+                        <span class="alignTab">
+                    {% endif %}
+                    
+                    <p class="slim">Filter by {{one.field}}: <input type="text" class="sBar" id="bar{{one.num}}"></p>
+                {% endfor %}
+                </span>
+
+                <br><br><button id="clearFil" class="normal">Clear filters</button>
+                <button id="goSearch" class="go">Search</button>
+
+                <p>You may also hit the enter key to search.</p>
+            </div>
+        </div><br><br>
+
+        <h4 style="padding:0px; margin:0px;" id="totCount">--Loading--</h4>
+        <h4 style="padding:0px; margin:0px;" id="matchCount">--Loading--</h4>
+        <br>
+        
+        <table class="basicInfo tableNums" id="myTable">
+            <thead>
+                {% csrf_token %}
+                <tr>
+                    {% for one in infoList %}
+                        <th scope="col" onclick="sortTable('{{one.num}}')">{{one.field}}</th>
+                    {% endfor %}
+                    <th scope="col">Manage</th>
+                </tr>
+            </thead>
+            <tbody id="tests-table">
+            
+            </tbody>
+        </table>
+
+
+
+
+        <script>
+            var newId = 4
+            var newTest = {'name':null, 'id':`test-${newId}`, 'result':null}
+            
+            setupFilters('{{infoList}}'.split(':').length - 1, 'entries')
+
+            $('#add-test').on('click', function(){
+                $('.form-wrapper').removeClass('hidden')
+            })
+        
+        
+            $('#test-result').on('keyup', function(){
+                newTest.result = $(this).val()
+            })
+        
+            $('#test-name').on('change', function(){
+                newTest.name = $(this).val()
+            })
+        
+            $('#create-test').on('click', function(){
+                if(newTest.name == null) {
+                    alert('No test selected!')
+                } else {
+                    addRow(newTest)
+                    $('#test-name').val('')
+                    $('#test-result').val('')
+                    $('.form-wrapper').addClass('hidden')
+                    newId += 1
+                    newTest.id = `test-${newId}`
+                }
+            })
+        
+
+            var tests = []
+            
+            var dataUrl = '/get-donor-data-array'
+            $.ajax({
+                method:'GET',
+                url:dataUrl,
+                success:function(response){
+                    tests = response
+                    for (var i in tests){
+                        addRow(tests[i])
+                    }
+                    rows = $('#tests-table').children('tr')
+                    
+                    $('#totCount').text(`${tests.length} entries in total`)
+                    $('#matchCount').text(`${tests.length} entries match the current search filters`)
+                }
+            })
+
+
+            function updateTestPOST(data, callback) {
+                var updateUrl = '/update-donor'
+                $.ajax({
+                    method:'POST',
+                    url:updateUrl,
+                    headers: {'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()},
+                    data:data,
+                    success:function(response) {
+                        var i = 0
+                        for (message of response)
+                        {
+                            $('#alerts').append(`<h3 style="background-color:tomato;">ALERT: ${message}</h3>`)
+                            i += 1
+                        }
+                        callback(i > 0)
+                    }
+                })
+            }
+
+
+            function deleteTestPOST(data) {
+                var deleteUrl = '/delete-donor'
+                $.ajax({
+                    method:'POST',
+                    url:deleteUrl,
+                    headers: {'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()},
+                    data:data,
+                    success:function() {
+
+                    }
+                })
+            }
+        
+        
+            var resLen = 0
+            function addRow(obj){
+                resLen = obj.result.length
+                var row = `<tr scope="row" class="test-row-${obj.id}">`
+                for (var i = 0; i < obj.result.length; i++)
+                {
+                    row += `<td id="result-${obj.id}-${i}" data-index="${i}" data-testid="${obj.id}">${obj.result[i]}</td>`
+                }
+                row +=      `<td style="white-space: nowrap;"">
+                                <button class="danger " data-testid="${obj.id}" id="delete-${obj.id}">Delete</button>
+                                <button class="normal" disabled data-testid="${obj.id}" id="save-${obj.id}">Save</button>
+                                <button class="danger hidden" data-testid="${obj.id}" id="cancelUpdate-${obj.id}">Cancel</button>
+                                <button class="normal hidden" data-testid="${obj.id}" id="cancel-${obj.id}">Cancel</button>
+                                <button class="danger hidden" data-testid="${obj.id}" id="confirm-${obj.id}">Confirm</button>
+                            </td>
+                        </tr>`
+                $('#tests-table').append(row)
+                
+                $(`#delete-${obj.id}`).on('click', deleteTest)
+                $(`#cancel-${obj.id}`).on('click', cancelDeletion)
+                $(`#cancelUpdate-${obj.id}`).on('click', cancelUpdate)
+                $(`#confirm-${obj.id}`).on('click', confirmDeletion)
+                $(`#save-${obj.id}`).on('click', saveUpdate)
+
+                for (var j = 0; j < obj.result.length; j++)
+                {
+                    $(`#result-${obj.id}-${j}`).on('click', editResult)
+                }
+            }
+            
+            function editResult(){
+                var testid = $(this).data('testid')
+                var thisId = $(this).data('index')
+
+                var value = $(this).html()
+
+                var deleteBtn = $(`#delete-${testid}`)
+                var cancelUpdateBtn = $(`#cancelUpdate-${testid}`)
+                var saveBtn = $(`#save-${testid}`)
+
+                deleteBtn.addClass('hidden')
+                cancelUpdateBtn.removeClass('hidden')
+                saveBtn.prop('disabled', false)
+
+
+                $(this).unbind()
+                if (thisId == '3')
+                {
+                    $(this).html(`<textarea class="result" id="test-${testid}-${thisId}" data-testid="${testid}" type="text" rows="2" cols="40">${value}</textarea>`)
+                }
+                else
+                {
+                    $(this).html(`<input class="result" id="test-${testid}-${thisId}" data-testid="${testid}" type="text" value="${value}" size="30">`)
+                }
+                                
+
+                //.result is referencing the result class in the line above
+                /*$(`.result`).on('keyup', function(){
+                    var testid = $(this).data('testid')
+                    var saveBtn = $(`#save-${testid}`)
+                    //saveBtn.removeClass('hidden')
+                    saveBtn.prop('disabled', false)
+                })*/
+            }
+
+        
+            function saveUpdate(){
+                size = resLen
+                var testid = $(this).data('testid')
+                var saveBtn = $(`#save-${testid}`)
+                var row = $(`.test-row-${testid}`)
+                var deleteBtn = $(`#delete-${testid}`)
+                var cancelUpdateBtn = $(`#cancelUpdate-${testid}`)
+                var blank = false
+
+                //saveBtn.addClass('hidden')
+                saveBtn.prop('disabled', true)
+                row.css('opacity', "0.5")
+                cancelUpdateBtn.addClass('hidden')
+
+                results = []
+                for (var i = 0; i < size; i++)
+                {
+                    var newVal = $(`#test-${testid}-${i}`).val()
+
+                    if(typeof newVal == "undefined")
+                    {
+                        newVal = $(`#result-${testid}-${i}`).text()
+                    }
+
+                    results.push(newVal)
+      
+                }
+
+                $('#alerts').html('')
+                var data = {'id':testid, 'result':results}
+
+                updateTestPOST(data, function(alerted) {
+                    if (alerted)
+                    {
+                        cancelUpdateBtn.removeClass('hidden')
+                        saveBtn.prop('disabled', false)
+                    }
+                    else
+                    {
+                        var i = 0
+                        for (const aVal of results)
+                        {
+                            $(`#result-${testid}-${i}`).html(`${aVal}`)
+                            $(`#result-${testid}-${i}`).unbind('click')
+                            $(`#result-${testid}-${i}`).on('click', editResult)
+                            i += 1
+                        }
+
+                        deleteBtn.removeClass('hidden')
+                    }
+                    setTimeout(function(){
+                        row.css('opacity', '1')
+                    }, 400)
+                })
+            }
+
+            function cancelUpdate(){
+                size = resLen
+                var testid = $(this).data('testid')
+                var ogVals = []
+                for(var i = 0; i < tests.length; i++)
+                {
+                    if (tests[i].id == testid)
+                    {
+                        ogVals = tests[i].result
+                    }
+                }
+
+                var deleteBtn = $(`#delete-${testid}`)
+                var saveBtn = $(`#save-${testid}`)
+                var cancelUpdateBtn = $(`#cancelUpdate-${testid}`)
+
+                for (var i = 0; i < size; i++)
+                {
+                    $(`#result-${testid}-${i}`).html(`${ogVals[i]}`)
+                    //console.log(ogVals[i])
+                    $(`#result-${testid}-${i}`).unbind('click')
+                    $(`#result-${testid}-${i}`).on('click', editResult)
+                }
+        
+                deleteBtn.removeClass('hidden')
+                saveBtn.prop('disabled', true)
+                //saveBtn.addClass('hidden')
+                cancelUpdateBtn.addClass('hidden')
+            }
+        
+        
+        
+            function deleteTest(){
+                var testid = $(this).data('testid')
+
+                var deleteBtn = $(`#delete-${testid}`)
+                var saveBtn = $(`#save-${testid}`)
+                var cancelBtn = $(`#cancel-${testid}`)
+                var confirmBtn = $(`#confirm-${testid}`)
+
+                deleteBtn.addClass('hidden')
+                saveBtn.addClass('hidden')
+                cancelBtn.removeClass('hidden')
+                confirmBtn.removeClass('hidden')
+            }
+        
+            function cancelDeletion(){
+                var testid = $(this).data('testid')
+
+                var deleteBtn = $(`#delete-${testid}`)
+                var saveBtn = $(`#save-${testid}`)
+                var cancelBtn = $(`#cancel-${testid}`)
+                var confirmBtn = $(`#confirm-${testid}`)
+        
+                deleteBtn.removeClass('hidden')
+                saveBtn.removeClass('hidden')
+                cancelBtn.addClass('hidden')
+                confirmBtn.addClass('hidden')
+            }
+        
+            function confirmDeletion(){
+                var testid = $(this).data('testid')
+                var row = $(`.test-row-${testid}`)
+                row.remove()
+
+                var data = {'id': testid}
+                deleteTestPOST(data)
+            }
+
+            
+        </script>
+	</div>
+</div>
+
+{% endblock %}
+

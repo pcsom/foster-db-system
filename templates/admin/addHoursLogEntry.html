@@ -1,0 +1,89 @@
+{% extends 'nafcbase.html' %}
+{% load static %}
+{% block content %}
+
+<div class="body">
+  <div class="home">
+    <div class="section">
+
+      <link rel="stylesheet" href="{% static 'css/datepicker.css' %}" />
+      <link rel="stylesheet" href="{% static 'css/select2.css' %}" />
+      <script src="{% static 'js/datepicker.js' %}"></script>
+      <script src="{% static 'js/select2.js' %}"></script>
+
+
+      <h2>Add an entry to the volunteer hours log</h2>
+      {% for message in messages %}
+        {% if message.tags == "success" %}
+          <h3 style="background-color:rgb(162, 255, 68)">ALERT: {{message}}</h3>
+        {% elif message.tags == "error" %}
+          <h3 style="background-color:tomato">ALERT: {{message}}</h3>
+        {% else %}
+          <h3 style="background-color:rgb(74, 255, 255)">ALERT: {{message}}</h3>
+        {% endif %}
+      {% endfor %}
+      
+      <p>Required fields are marked by an asterisk (*)</p>
+      <div class="newDiv alerts"></div><br>
+      <form action="" method="POST" id="dataForm">
+        {% csrf_token %}
+
+        <label for="selVol">Use the dropdown to pick or create a new volunteer. To create new, open the dropdown, type the new name, and press enter: *</label><br>
+        <select id="selVol" name="selVol" style="min-width: 200px;">
+          {% for id, name in vols %}
+            <option value="{{id}}">{{name}}</option>
+          {% endfor %}
+        </select><br><br>
+
+        {% for single_field in form %}
+          <label for="{{single_field.name}}">{{single_field.label}}</label><br>
+          {{single_field}}<br><br>
+        {% endfor %}
+
+        <input type="submit" name="submitter" value="Submit" class="go">
+      </form>
+      <a href="/"><button class="danger">Cancel</button></a>
+
+      <div class="newDiv alerts"></div>
+
+      <script>
+        $(function () {
+          $("#id_date").datepicker({
+            format: 'mm/dd/yyyy',
+          })
+
+          $('#selVol').select2({
+            tags: true
+          })
+        })
+
+
+        $('#dataForm').on('submit', function (e) {
+          e.preventDefault()
+          $(".alerts").empty()
+          var $form = $("#dataForm")
+          var vals = getFormData($form)
+          var updateUrl = '/add-hours-entry'
+          $.ajax({
+            method: 'POST',
+            url: updateUrl,
+            headers: { 'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val() },
+            data: vals,
+            success: function (response) {
+              var i = 0
+              for (message of response) {
+                $('.alerts').append(`<h3 class="danger">ALERT: ${message}</h3>`)
+                i += 1
+              }
+              if (i == 0) {
+                window.location.href = '/'
+              }
+            }
+          })
+        })
+      </script>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

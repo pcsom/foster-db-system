@@ -1,0 +1,233 @@
+{% extends 'nafcbase.html' %}
+{% load static %}
+{% block content %}
+
+<div class="body">
+	<div class="home">
+		<div class="section">
+			<meta name="viewport" content="width=device-width, initial-scale=1">
+			
+
+			<h1>View Family</h1>
+			<p>Here is the information about <strong>{{basicInfo}}</strong>.</p>
+
+			{% for message in messages %}
+				{% if message.tags == "success" %}
+					<h3 style="background-color:rgb(162, 255, 68)">ALERT: {{message}}</h3>
+				{% elif message.tags == "error" %}
+					<h3 style="background-color:tomato">ALERT: {{message}}</h3>
+				{% else %}
+					<h3 style="background-color:rgb(74, 255, 255)">ALERT: {{message}}</h3>
+				{% endif %}
+			{% endfor %}
+
+			<button type="button" class="collapsible"><strong> Requests</strong></button>
+			<div class="collapsibleContent">
+				<p>> <a href="{% url 'view-requests' curUser.id %}">View this user's requests</a></p>
+			</div>
+			<p></p>
+
+			<button type="button" class="collapsible"><strong> General Information</strong></button>
+			<div class="collapsibleContent">
+				<h3>Account Details</h3>
+				<strong style="color:rgb(61, 116, 56)">This user's Username:</strong> {{curUser.username}}<br>
+				<a href="{% url 'change-username' curUser.id %}">Change this user's username</a> <strong style="color:rgb(255, 255, 255)">......</strong><!-- >  > <a href="/password-change">Change this user's password</a> -->
+				<br><br>
+				{% if st %}
+					This user is an admin.<br>
+					<form method="POST" action="/view-family/{{curUser.id}}">
+						{% csrf_token %}
+						<div class="newDiv popup">
+							<button type="button" onclick="doWarn()" name="confirm" class="danger">Revoke admin status</button><br>
+							<span class="popuptext" id="myPopup">
+								WARNING - By continuing, all of this user's admin permissions will be revoked and they will lose admin status.
+								<br>You can re-grant these admin permissions anytime.<br><br>
+								<input type="submit" name="confirm" class="danger" value="Confirm">
+								<button type="button" class="normal" onclick="doWarn()">Cancel</button>
+							</span>
+						</div>
+					</form>
+				{% else %}
+					This user is not an admin.<br>
+					<form method="POST" action="/view-family/{{curUser.id}}">
+						{% csrf_token %}
+						<div class="newDiv popup">
+							<button type="button" onclick="doWarn()" name="confirm" class="danger">Make this user an admin</button><br>
+							<span class="popuptext" id="myPopup">
+								WARNING - By continuing, this user will gain all admin permissions. Accounts with such permissions have the ability to make destructive changes to the system. 
+								ONLY CONTINUE IF YOU COMPLETELY TRUST THIS USER WITH THE INTEGRITY OF THIS SYSTEM.
+								<br>You can revoke these admin permissions anytime.<br><br>
+								<input type="submit" name="confirm" class="danger" value="Confirm">
+								<button type="button" class="normal" onclick="doWarn()">Cancel</button>
+							</span>
+						</div>
+					</form>
+				{% endif %}
+				<br><br>
+
+				<h3>Care Type</h3>
+				{% if currentCareType == None %}
+					This family has not finished their care type selection yet.
+				{% else %}
+					This family is...
+					<table class="basicInfo">
+						<tr>
+							<th>Adoptive?</th>
+							<th>Foster?</th>
+							<th>Kinship?</th>
+							<th>Safety Plan?</th>
+						</tr>
+
+						<tr>
+							{% if currentCareType.adoptive %}
+								<td>Yes</td>
+							{% else %}
+								<td>No</td>
+							{% endif %}
+							
+							{% if currentCareType.foster %}
+								<td>Yes</td>
+							{% else %}
+								<td>No</td>
+							{% endif %}
+							
+							{% if currentCareType.kinship %}
+								<td>Yes</td>
+							{% else %}
+								<td>No</td>
+							{% endif %}
+							
+							{% if currentCareType.safety %}
+								<td>Yes</td>
+							{% else %}
+								<td>No</td>
+							{% endif %}
+						</tr>
+					</table>
+				{% endif %}				
+				<p>> <a href="{% url 'type-of-care' curUser.id %}">Change or view more of this care type info</a></p><br>
+
+				<h3>Basic Information</h3>
+				<table class="basicInfo">
+					<tr>
+						<th>Last Name</th>
+						<th>First Name</th>
+						<th>Address</th>
+						<th>City</th>
+						<th>State</th>
+						<th>ZIP</th>
+						<th>County</th>
+						<th>Cell Phone</th>
+					</tr>
+
+					<tr>
+						<td>{{curUser.last_name}}</td>
+						<td>{{curUser.first_name}}</td>
+						<td>{{basicInfo.address}}</td>
+						<td>{{basicInfo.city}}</td>
+						<td>{{basicInfo.state}}</td>
+						<td>{{basicInfo.zipCode}}</td>
+						<td>{{basicInfo.county}}</td>
+						<td>{{basicInfo.cellPhone}}</td>
+					</tr>
+				</table><br>
+
+				<table class="basicInfo">
+					<tr>
+						<th>Home Phone</th>
+						<th>Email</th>
+						<th>Contact Method</th>
+						<th>Email Updates?</th>
+						<th>Remind Updates?</th>
+					</tr>
+
+					<tr>
+						<td>{{basicInfo.homePhone}}</td>
+						<td>{{curUser.email}}</td>
+						<td>{{basicInfo.get_contactMethod_display}}</td>
+						{% if basicInfo.emailUpdateList %}
+							<td>Yes</td>
+						{% else %}
+							<td>No</td>
+						{% endif %}
+
+						{% if basicInfo.remindUpdateList %}
+							<td>Yes</td>
+						{% else %}
+							<td>No</td>
+						{% endif %}
+					</tr>
+				</table>
+				<p>> <a href="{% url 'update-basic' curUser.id %}">Change this family's basic information</a></p>
+			</div>
+
+			<p></p>
+			
+			<button type="button" class="collapsible"><strong> Children</strong></button>
+			<div class="collapsibleContent">
+				{% if children %}
+					<br>
+					<table class="basicInfo">
+						<tr>
+							<th>Name</th>
+							<th>Type of Care</th>
+							<th>Age</th>
+							<th>Clothes Size</th>
+							<th>Shoe Size</th>
+							<th>New Placement?</th>
+							<th>Allergies</th>
+							<th>Update Child's Info</th>
+							<th>Remove/Delete Child</th>
+						</tr>
+		
+						{% for child in children %}
+							<tr>
+								<td>{{child.firstName}}</td>
+								<td>{{child.careType}}</td>
+								<td>{{child.age}}</td>
+								<td>{{child.clothesSize}}</td>
+								<td>{{child.shoeSize}}</td>
+								<td>{{child.newPlacement}}</td>
+								<td>{{child.allergyDescription}}</td>
+								<td><a href="{% url 'update-child' child.id %}">Update</a></td>
+								<td><a href="{% url 'delete-child' child.id %}">Remove</a></td>
+							</tr>
+						{% endfor %}
+					</table>
+				{% else %}
+					<p>:( This user has not added any children to their account!</p>
+				{% endif %}
+				<p>> <a href="{% url 'add-child' curUser.id %}" target="_blank">Add a child to this family</a></p>
+			</div>
+			
+
+			
+			<script>
+				var coll = document.getElementsByClassName("collapsible");
+				var i;
+
+				for (i = 0; i < coll.length; i++) {
+					coll[i].addEventListener("click", function() {
+						this.classList.toggle("active");
+						var content = this.nextElementSibling;
+						if (content.style.maxHeight){
+							content.style.maxHeight = null;
+						} else {
+							content.style.maxHeight = content.scrollHeight + "px";
+						}
+					});
+				}
+
+				
+
+				function doWarn(adm)
+				{
+					document.getElementById("myPopup").classList.toggle("showPop")
+				}
+			</script>
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+

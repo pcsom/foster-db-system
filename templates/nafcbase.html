@@ -1,0 +1,171 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>NAFC Family Center</title>
+	<link rel="stylesheet" href="{% static 'css/style.css' %}" type="text/css">
+	<script src="{% static 'js/jquery.js' %}"></script>
+	<script src="{% static 'js/collapsible.js' %}" id="collScript"></script>
+	<link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.ico' %}"/>
+</head>
+<body>
+	<div class="header">
+		<div>
+			<a href="/" id="logo"><img src="{% static 'images/logo.png' %}" alt="logo"></a>
+			<div>
+				<ul>
+					<li class="selected">
+						<a href="/">Dashboard</a>
+					</li>
+					<li>
+						<a href="https://www.northalabamafostercloset.com/" target="_blank">Exit to Main Website</a>
+					</li>
+					<li>
+						<a href="https://www.northalabamafostercloset.com/contact-us/" target="_blank">Contact</a>
+					</li>
+
+
+					{% if user.is_authenticated %}
+						<li>
+							<a href="/logout">Logout</a>
+						</li>
+					
+					{% else %}
+						<li>
+							<a href="register">Register</a>
+						</li>
+						<li>
+							<a href="login">Login</a>
+						</li>
+					{% endif %}
+
+
+				</ul>
+			</div>
+		</div>
+	</div>
+	{% block content %}
+
+	{% endblock %}
+	<div class="footer">
+		<div>
+			<div>
+				<h4>Contact Us!</h4>
+				<ul>
+					<li class="email">
+						<p>Please click <a href="https://www.northalabamafostercloset.com/contact-us/" target="_blank">HERE</a> to get in touch with us. We are an all-volunteer organization, so if we don’t get back to you right away, just know we will get back to you as soon as we can! Thank you!</p>
+					</li>
+					<li class="address">
+						<p>Physical address: 5510 HWY 53, Harvest AL 35749</p>
+					</li>
+					<li class="address">
+						<p>Mailing Address:</p>
+						<p>North Alabama Foster Closet</p>
+						<p>5638 HWY 53, Unit B-194</p>
+						<p>Harvest AL 35749</p>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</body>
+
+<script>
+	function getFormData($form){
+		var unindexed_array = $form.serializeArray()
+		var indexed_array = {}
+
+		$.map(unindexed_array, function(n, i){
+			indexed_array[n['name']] = n['value']
+		})
+		return indexed_array
+	}
+
+	formatTables = function() {
+		var tables = document.getElementsByClassName('tableNums')
+		var col = document.createElement("th")
+		col.style.border = "0px dotted white"
+		col.style.visibility = "hidden"
+		for(var i = 0; i < tables.length; i++)
+		{
+			var theTr = tables[i].getElementsByTagName("thead")[0].getElementsByTagName("tr")[0]
+			theTr.insertBefore(col, theTr.firstChild)
+		}
+	}
+
+	largestTable = function() {
+		var tables = document.getElementsByTagName('table')
+		var most = 0
+		for(var i = 0; i < tables.length; i++)
+		{
+			if(tables[i].offsetWidth > most)
+			{
+				most = tables[i].offsetWidth
+			}
+		}
+		return most
+	}
+
+	resize = function() {
+		var vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0)
+		var most = largestTable()
+
+		if(most > vw && most > 970 && vw > 970)
+		{
+			var left = vw/2-485
+			document.getElementsByClassName('header')[0].children[0].style.marginLeft = left + "px"
+			document.getElementsByClassName('footer')[0].children[0].style.marginLeft = left + "px"
+		}
+
+		if(most <= vw)
+		{
+			document.getElementsByClassName('body')[0].style.width = "100vw"
+		}
+
+		return 0
+	}
+
+	window.onload = function() {
+		resize()
+		formatTables()
+	}
+
+	window.addEventListener("resize", resize)
+
+	window.onscroll = function() {
+		scrollFunction()
+	};
+	
+	var header = $('.header')
+	var atTop = true
+	function scrollFunction() {
+		if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+			if(atTop)
+			{
+				header.height(45)
+				header.css("background-position", "0 -80px")
+				header.find('>div').css("padding-top", "0px")
+				header.find('>div').css("height", "55px")
+				header.find('>div>a#logo').css("top", "4px")
+				header.find('>div>a#logo>img').css("width", "90px")
+				header.find('>div>a#logo>img').css("height", "auto")
+			}
+			atTop = false
+		} else {
+			if(!atTop)
+			{
+				header.height(125)
+				header.css("background-position", "0 0")
+				header.find('>div').css("padding-top", "60px")
+				header.find('>div').css("height", "45px")
+				header.find('>div>a#logo').css("top", "40px")
+				header.find('>div>a#logo>img').css("width", "184px")
+				header.find('>div>a#logo>img').css("height", "63px")
+			}
+			atTop = true
+		}
+	} 
+</script>
+</html>

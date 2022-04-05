@@ -1,0 +1,554 @@
+{% extends 'nafcbase.html' %}
+{% load static %}
+{% block content %}
+
+<div class="body">
+	<div class="home">
+		<div class="section">
+
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+			
+
+            <link href="{% static 'css/datepicker.css' %}" rel="stylesheet" />
+            <script src="{% static 'js/datepicker.js' %}"></script>
+
+            <h2>View All Requests</h2>
+
+            {% if group == "1" %}
+                <p>
+                    Here, you can find all item requests, sorted from oldest to latest, and grouped by user. 
+                    Each black box below represents a user; click it to see their requests, along with an option to generate a printout for their latest requests. 
+                    Each request is represented by a gray box; click it for specific details.<br>
+                    Each user is labelled by the status of their latest request (one of (P) (C) (R) (F) ). Learn what these symbols mean <a href="/request-track-info" target="_blank">here</a>.
+                </p>
+            
+                <br><h3>About the printout</h3>
+                <p>
+                    -The printout will contain items from the family's (P) and (C) requests, along with relevant family/child information. <br>
+                    -Generating a printout will set all of the respective family's (P) requests to (C).<br>
+                    -<strong>ADDITIONALLY:</strong> A user may make a request or change their preferred method of receiving at any time. If you ever 
+                    make multiple printouts for a given user, please know that a new printout may differ from an older one; if so, 
+                    ensure that you follow the information on <strong>the newest one</strong>.
+                </p><br>
+            {% elif group == "0" %}
+                <p>
+                    Here, you can find all item requests, sorted from oldest to latest. 
+                    Each gray box below represents a request; click them for specific details.
+                </p>
+            {% endif %}
+
+
+            <p>Options: 
+                {% for one in btns%}
+                    <a href="/view-all-requests/{{one.link}}"><button class="normal">{{one.desc}}</button></a>  
+                {% endfor %}
+            </p>
+            {% csrf_token %}
+            <br>
+
+            {% for message in messages %}
+                {% if message.tags == "success" %}
+                    <h3 style="background-color:rgb(162, 255, 68)">ALERT: {{message}}</h3>
+                {% elif message.tags == "error" %}
+                    <h3 style="background-color:tomato">ALERT: {{message}}</h3>
+                {% else %}
+                    <h3 style="background-color:rgb(74, 255, 255)">ALERT: {{message}}</h3>
+                {% endif %}
+            {% endfor %}
+            
+            <div class="newDiv collapsibleContainer">
+                <button type="button" class="collapsible generalColl thin" id="filterColl">Search filters & sorting</button>
+                <div class="collapsibleContent">
+                    {% if group == "0" %}
+                        <p>Filter by text: <input type="text" id="bar" class="aFilter"></p>
+                    {% elif group == "1" %}
+                        <p>Filter by name of user: <input type="text" id="userBar" class="aFilter"></p>
+                        <p>Filter by title of request: <input type="text" id="reqBar" class="aFilter"></p>
+                    {% endif %}
+                    <p>Filter by date (format MM/DD/YYYY): FROM: <input type="" id="date1" class="dateSelect aFilter"> TO: <input type="" id="date2" class="dateSelect aFilter"></p>
+                    <p>Sort order: 
+                        <input type="button" class="normal" id="lo" value="Latest to Oldest"> 
+                        <input type="button" class="normal activeBorder" id="ol" value="Oldest to Latest">
+                    </p>      
+
+                    <button id="clearFil" class="normal">Clear filters</button>
+                    <button id="goSearch" class="go">Search</button>
+    
+                    <p>You may also hit the enter key to search.</p>                  
+                </div>
+            </div><br>
+
+            {% if group == "1" %}
+                <h4 style="padding:0px; margin:0px;" id="totCountU">{{userList|length}} users in total</h4>
+                <h4 style="padding:0px; margin:0px;" id="matchCountU">{{userList|length}} users match the current search filters</h4>
+                <br>
+            {% endif %}
+
+            <h4 style="padding:0px; margin:0px;" id="totCount">--Loading--</h4>
+            <h4 style="padding:0px; margin:0px;" id="matchCount">--Loading--</h4>
+            <br>
+
+            <div class="newDiv" id="usersContainer">
+                {% if group == "1" %}
+                    {% for oneUser in usersList %}
+                        <div class="newDiv collapsibleContainer manyList">
+                            <button type="button" class="collapsible manyList userBtn" id='btn{{forloop.counter0}}'>{{oneUser.name}}</button>
+                            <div class="collapsibleContent manyList">
+                                {% if oneUser.button != "None" %}
+                                    <br>
+                                    <a href="/get-request-report/{{oneUser.btnId}}"><button class="go">{{oneUser.button}}</button></a>
+                                    <br>
+                                {% endif %}
+                                <br>
+                                {% for oneReq in oneUser.data %}
+                                    
+                                    <div class="newDiv collapsibleContainer manyList" id='cc{{forloop.parentloop.counter0}}-{{oneReq.id}}'>
+                                        <button type="button" class="collapsible nested light manyList reqBtn noContents" id='btn{{forloop.parentloop.counter0}}-{{oneReq.id}}'>{{oneReq.childDateInfo}}</button>
+                                        <div class="collapsibleContent manyList" id='cont{{forloop.parentloop.counter0}}-{{oneReq.id}}'>
+                                            <br>
+                                        </div>
+                                    </div>
+                                {% endfor %}<br>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% if group == "0" %}
+                    {% for oneReq in iRequests %}
+                        <div class="newDiv collapsibleContainer manyList" id='cc{{oneReq.id}}'>
+                            <button type="button" class="collapsible light manyList reqBtn noContents" id='btn{{oneReq.id}}'>{{oneReq.name}}</button>
+                            <div class="collapsibleContent manyList" id='cont{{oneReq.id}}'>
+                                <br>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            
+
+		</div>
+
+
+
+        <script>
+
+            var coll = $(`.collapsible`)
+
+            var i
+            var d1 = ""
+            var grouped = false
+            if ("{{group}}" == "1")
+            {
+                grouped = true
+                d1 = "{{usersListJSON}}"
+            }
+            else
+            {
+                d1 = "{{iRequestsJSON}}"
+            }
+            var d2 = d1.replace(/&quot;/g,'"')
+            var d3 = d2.replace(/&#x27;/g,"'")
+            var iReqs = JSON.parse(d3)
+
+            var toAdd = ''
+
+            $(function () {
+                $(".dateSelect").datepicker({
+                  format: 'mm/dd/yyyy',
+                })
+                $(".aFilter").val('')
+            })
+
+            var totReq = 0, totU = 0
+            if (grouped)
+            {
+                for (var i of iReqs)
+                {
+                    totReq += i['data'].length
+                }
+                totU = iReqs.length
+                $('#totCountU').text(`${totU} users in total`)
+                $('#matchCountU').text(`${totU} users match the current search filters`)
+            }
+            else
+            {
+                totReq = iReqs.length
+            }
+            $('#totCount').text(`${totReq} requests in total`)
+            $('#matchCount').text(`${totReq} requests match the current search filters`)
+
+            $(window).on('load', function() {
+                coll.unbind() 
+                if (grouped)
+                {
+                    coll.on("click", function() {
+                        var rawId = $(this).attr('id')
+                        if($(this).hasClass('noContents'))
+                        {
+                            $(this).removeClass('noContents')
+                            getReqData(rawId)
+                        }
+                        else
+                        {
+                            finishCollAction(rawId)
+                        }
+                    });
+        
+                    function finishCollAction(rawId)
+                    {
+                        $(`#${rawId}`).toggleClass("active")
+                        var content = $(`#${rawId}`).next()
+                        if (content.css("maxHeight") != "0px"){
+                            content.css("maxHeight", "0px")
+                            content.css("border-width", "0px")
+                        } else {
+                            content.css("maxHeight", content.prop("scrollHeight") + "px")
+                            content.css("border-width", "4px")
+                            if (rawId.includes("-"))
+                            {
+                                setTimeout(function () {
+                                    var toUpdate = content.parent().parent()
+                                    toUpdate.css("maxHeight", toUpdate.prop("scrollHeight") + "px")
+                                }, 200)
+                            }
+                        }
+                    }
+                    
+                    function getReqData(rawId)
+                    {
+                        var rid = rawId.slice('3').split('-')
+                        $.ajax({
+                            method:'POST',
+                            url:"/view-all-requests/" + "{{pk}}",
+                            headers: {'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()},
+                            data:{'dbId': iReqs[Number(rid[0])]['data'][Number(rid[1])]['dbId']},
+                            success:function(response) {
+                                getDetails(rid, response)
+                                finishCollAction(rawId)
+                            }
+                        })
+                    }
+                    
+                    function getDetails(rid, data)
+                    {
+                        toAdd = '<strong>Method of Receiving: </strong>'
+                        if ("info" in data['receiving'])
+                        {
+                            for (var i of data['receiving']['info'])
+                            {
+                                toAdd += `${i}, `
+                            }
+                        }
+                        else
+                        {
+                            toAdd += "<strong>(The preferred method of receiving these items hasn't been specified.)</strong>"
+                        }
+                        toAdd += '<br><br><strong>Requested items:</strong><br>'
+                        for (var i of data['fields'])
+                        {
+                            if (i[1])
+                            {
+                                toAdd+= `-${i[0]}${i[1]}
+                                <br>`
+                            }
+                        }
+        
+                        $(`#cont${rid[0]}-${rid[1]}`).append(toAdd + '<br>')
+        
+                    }
+                }
+                else
+                {
+                    coll.on("click", function() {
+                        var rawId = $(this).attr('id')
+                        if($(this).hasClass('noContents'))
+                        {
+                            $(this).removeClass('noContents')
+                            getReqData(rawId)
+                        }
+                        else
+                        {
+                            finishCollAction(rawId)
+                        }
+                    });
+
+                    function finishCollAction(rawId)
+                    {
+                        $(`#${rawId}`).toggleClass("active")
+                        var content = $(`#${rawId}`).next()
+                        if (content.css("maxHeight") != "0px"){
+                            content.css("maxHeight", "0px")
+                            content.css("border-width", "0px")
+                        } else {
+                            content.css("maxHeight", content.prop("scrollHeight") + "px")
+                            content.css("border-width", "4px")
+                        }
+                    }
+
+                    function getReqData(rawId)
+                    {
+                        var rid = Number(rawId.slice('3'))
+                        $.ajax({
+                            method:'POST',
+                            url:"/view-all-requests/" + "{{pk}}",
+                            headers: {'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()},
+                            data:{'dbId': iReqs[rid]['dbId']},
+                            success:function(response) {
+                                getDetails(rid, response)
+                                finishCollAction(rawId)
+                            }
+                        })
+                    }
+                    
+                    function getDetails(rid, data)
+                    {
+                        toAdd = '<strong>Method of Receiving: </strong>'
+                        if ("info" in data['receiving'])
+                        {
+                            for (var i of data['receiving']['info'])
+                            {
+                                toAdd += `${i}, `
+                            }
+                        }
+                        else
+                        {
+                            toAdd += "<strong>(The preferred method of receiving these items hasn't been specified.)</strong>"
+                        }
+                        toAdd += '<br><br><strong>Requested items:</strong><br>'
+                        for (var i of data['fields'])
+                        {
+                            if (i[1])
+                            {
+                                toAdd+= `-${i[0]}${i[1]}
+                                <br>`
+                            }
+                        }
+                        toAdd += '<br>'
+
+                        $(`#cont${rid}`).append(toAdd)
+
+                    }
+
+                    
+                }
+            })
+
+            var toSearchUser = ""
+            var toSearchReq = ""
+            var toSearch = ""
+            var reqs =  $('.reqBtn')
+            var users = $('.userBtn')
+            var validReqs = reqs
+            var makeChange, makeChangeWithUser, validUsers = users, validReqs = reqs, curRequire
+            var fromDate = "", toDate = "", fromEm = true, toEm = true
+            
+            function validDate(date)
+            {
+                var sep = date.split('/')
+                if (sep.length != 3)
+                {
+                    return false
+                }
+                
+                if (sep[0].length != 2 || isNaN(sep[1]))
+                {
+                    return false
+                }
+                if (sep[1].length != 2 || isNaN(sep[1]))
+                {
+                    return false
+                }
+                if (sep[2].length != 4 || isNaN(sep[1]))
+                {
+                    return false
+                }
+                return true
+            }
+
+            jQuery.expr[':'].icontains = function(a, i, m) {
+                return jQuery(a).text().toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
+            }
+
+            function editDate(date)
+            {
+                var aslist = date.split('/')
+                return parseInt(aslist[2])*10000 + parseInt(aslist[0])*100 + parseInt(aslist[1])
+            }
+
+            jQuery.expr[':'].checkFrom = function(a, i, data) {
+                console.log(data[3])
+                return editDate(jQuery(a).text().slice('-10')) >= editDate(data[3]) || fromEm
+            }
+            jQuery.expr[':'].checkTo = function(a, i, data) {
+                return editDate(jQuery(a).text().slice('-10')) <= editDate(data[3]) || toEm
+            }
+
+            $("#date1").on('input', function() {
+                fromDate = $(this).val()
+                fromEm = fromDate == ""
+
+            })
+            $("#date2").on('input', function() {
+                toDate = $(this).val()
+                toEm = toDate == ""
+            })
+            $("#date1,#date2").on('keypress', function(e) {
+                if (e.which == 13)
+                {
+                    makeChange()
+                }
+            })
+            $('#clearFil').on('click', function(){
+                $('.aFilter').val("")
+                toSearchReq = ""
+                toSearchUser = ""
+                toSearch = ""
+                toDate = ""
+                fromDate = ""
+                fromEm = true
+                toEm = true
+            })
+
+            
+            var orderFunc
+
+            
+                if (grouped)
+                {
+                    makeChange = function()
+                    {
+                        reqs = validUsers.next().find('.reqBtn')
+                        curRequire = `:icontains('${toSearchReq}')`
+                        if (toEm || validDate(toDate))
+                        {
+                            curRequire += `:checkTo('${toDate}')`
+                        }
+                        if (fromEm || validDate(fromDate))
+                        {
+                            curRequire += `:checkFrom('${fromDate}')`
+                        }
+                        validReqs = reqs.filter(curRequire)
+                        validReqs.parent().show()
+                        reqs.not(validReqs).parent().hide()
+                        validUsers.parent().show()
+                        validUsers.next().not(":has(.collapsibleContent:visible)").parent().hide()
+                        //$('#matchCount').text(`${validReqs.length} requests match the current search filters.`)
+                        $('#matchCount').text(`${validReqs.length} requests match the current search filters`)
+
+                        setTimeout(function () {
+                            var toUpdate = $('#usersContainter').find('>button.active').next()
+                            toUpdate.css("maxHeight", toUpdate.prop("scrollHeight") + "px")
+                        }, 200)
+                    }
+
+                    makeChangeWithUser = function()
+                    {
+                        validUsers = users.filter(`:icontains('${toSearchUser}')`)
+                        validUsers.parent().show()
+                        users.not(validUsers).parent().hide()
+                        //makeChange(validUsers)
+                        makeChange()
+                        $('#matchCountU').text(`${validUsers.length} users match the current search filters`)
+                    }
+
+        
+                    $('#userBar').on('input', function() {
+                        toSearchUser = $(this).val()
+                    })
+                    $('#userBar').on('keypress', function(e) {
+                        if (e.which == 13)
+                        {
+                            makeChangeWithUser()
+                        }
+                    })
+        
+                    $('#reqBar').on('input', function() {
+                        toSearchReq = $(this).val()
+                    })
+                    $('#reqBar').on('keypress', function(e) {
+                        if (e.which == 13)
+                        {
+                            makeChange()
+                        }
+                    })
+                    
+                    $('#goSearch').on('click', function() {
+                        makeChangeWithUser()
+                        makeChange()
+                    })
+
+                    orderFunc = function (jObj, oth)
+                    {
+                        var reqCont = $('#usersContainer')
+                        if (!jObj.hasClass('activeBorder'))
+                        {
+                            jObj.addClass('activeBorder')
+                            $(`#${oth}`).removeClass('activeBorder')
+                            var listItems = reqCont.children('.collapsibleContainer')
+                            reqCont.append(listItems.get().reverse())
+                            listItems.each(function () {
+                                var deeper = $(this).find('>:last').children('.collapsibleContainer')
+                                $(this).find('>:last').append(deeper.get().reverse())
+                            })
+                        }
+                    }
+                    
+                    $(`#lo`).on("click", function () {
+                        orderFunc($(this), "ol")
+                    })
+
+                    $(`#ol`).on("click", function () {
+                        orderFunc($(this), "lo")
+                    })
+                }
+                else
+                {
+                    makeChange = function ()
+                    {
+                        var validReqs = reqs.filter(`:checkFrom('${fromDate}'):checkTo('${toDate}'):icontains('${toSearch}')`)
+                        validReqs.parent().show()
+                        reqs.not(validReqs).parent().hide()
+                        $('#matchCount').text(`${validReqs.length} requests match the current search filters.`)
+                    }
+
+
+                    $('#bar').on('input', function() {
+                        toSearch = $(this).val()
+                    })
+                    $('#bar').on('keypress', function(e) {
+                        if (e.which == 13)
+                        {
+                            makeChange()
+                        }
+                    })
+                    $('#goSearch').on('click', function() {
+                        makeChange()
+                    })
+
+                    orderFunc = function (jObj, oth)
+                    {
+                        var reqCont = $('#usersContainer')
+                        if (!jObj.hasClass('activeBorder'))
+                        {
+                            jObj.addClass('activeBorder')
+                            $(`#${oth}`).removeClass('activeBorder')
+                            var listItems = reqCont.children('.collapsibleContainer')
+                            reqCont.append(listItems.get().reverse())
+                        }
+                    }
+                    
+                    $(`#lo`).on("click", function () {
+                        orderFunc($(this), "ol")
+                    })
+
+                    $(`#ol`).on("click", function () {
+                        orderFunc($(this), "lo")
+                    })
+                }
+        </script>
+	</div>
+</div>
+
+{% endblock %}
+

@@ -1,0 +1,28 @@
+
+{% extends 'nafcbase.html' %}
+{% load static %}
+{% block content %}
+
+<div class="body">
+	<div class="home">
+		<div class="section">
+			<h2>About the Request Tracking System</h2>
+			<p>
+				Each request made by a family is assigned a status indicator:<br>
+				A request labelled with (P) means that it is pending (the family submitted it recently, and item collection hasn't started yet).<br>
+                (C) means that the items for the request are currently being collected by NAFC.<br>
+                (R) means that the items for the request are ready to be delivered/picked up.<br>
+                (F) denotes that the family has received the items and the request has been fulfilled.<br><br>
+
+				A request is set to (P) immediately after the family submits it.<br>
+				A request is set from (P) to (C) when you generate a 'requests printout' for the respective family. (do it <a href="/view-all-requests/11" target="_blank">HERE</a>)<br>
+				A request is set from (C) to (R) when you send the respective family an alert that their items are ready for pickup. (do it <a href="/notify-requests" target="_blank">HERE</a>)<br>
+				A request is set from (R) to (F) when you make a distribution log entry for the respective family. (do it <a href="/add-dist-entry" target="_blank">HERE</a>)
+				
+			</p>
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+

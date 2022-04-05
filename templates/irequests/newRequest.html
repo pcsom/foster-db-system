@@ -1,0 +1,339 @@
+
+{% extends 'nafcbase.html' %}
+{% load static %}
+{% block content %}
+
+<div class="body">
+	<div class="home">
+		<div class="section">
+            <link rel="stylesheet" href="{% static 'css/select2.css' %}" />
+            <script src="{% static 'js/select2.js' %}"></script>
+
+			<h2>Make a New Request</h2>
+
+            {% if numChild == 0 %}
+
+                You have not added any children to your account, yet. Please do so <a href='/add-child/{{curUser.id}}'>HERE</a> before making a request.
+
+            {% else %}
+
+                <div class="newDiv" id="infoDiv">
+                    <p>Step 1: Verify your user information. <strong>PLEASE MAKE ANY NECESSARY CHANGES!!!</strong></p>
+                    {% for message in messages %}
+                        {% if message.tags == "success" %}
+                            <h3 style="background-color:rgb(162, 255, 68)">ALERT: {{message}}</h3>
+                        {% elif message.tags == "error" %}
+                            <h3 style="background-color:tomato">ALERT: {{message}}</h3>
+                        {% else %}
+                            <h3 style="background-color:rgb(74, 255, 255)">ALERT: {{message}}</h3>
+                        {% endif %}
+                    {% endfor %}
+
+                    <table class="basicInfo">
+                        <tr>
+                            <th>Last Name</th>
+                            <th>First Name</th>
+                            <th>Address</th>
+                            <th>City</th>
+                            <th>State</th>
+                            <th>ZIP</th>
+                            <th>County</th>
+                            <th>Cell Phone</th>
+                        </tr>
+
+                        <tr>
+                            <td>{{curUser.last_name}}</td>
+                            <td>{{curUser.first_name}}</td>
+                            <td>{{basicInfo.address}}</td>
+                            <td>{{basicInfo.city}}</td>
+                            <td>{{basicInfo.state}}</td>
+                            <td>{{basicInfo.zipCode}}</td>
+                            <td>{{basicInfo.county}}</td>
+                            <td>{{basicInfo.cellPhone}}</td>
+                        </tr>
+                    </table><br>
+
+                    <table class="basicInfo">
+                        <tr>
+                            <th>Home Phone</th>
+                            <th>Email</th>
+                            <th>Contact Method</th>
+                            <th>Email Updates?</th>
+                            <th>Remind Updates?</th>
+                        </tr>
+
+                        <tr>
+                            <td>{{basicInfo.homePhone}}</td>
+                            <td>{{curUser.email}}</td>
+                            <td>{{basicInfo.get_contactMethod_display}}</td>
+							{% if basicInfo.emailUpdateList %}
+								<td>Yes</td>
+							{% else %}
+								<td>No</td>
+							{% endif %}
+							{% if basicInfo.remindUpdateList %}
+								<td>Yes</td>
+							{% else %}
+								<td>No</td>
+							{% endif %}
+                        </tr>
+                    </table>
+                    <p>> <a href="{% url 'update-basic' curUser.id %}" target="_blank">Update your user information</a> <br><br> (Refresh this page to reflect changes)</p><br>
+                    
+                    <button class="next npbutton" id="infoToChild">Next &raquo;</button>
+                </div>
+                
+
+
+
+
+
+                <form action="" method="POST" id="dataForm">
+                    {% csrf_token %}
+
+                    <div  style="display:none" class="newDiv" id="childDiv">
+                        <p>
+                            Step 2: select a child to submit a request for. Please submit different requests for different children. 
+                            PLEASE <strong>VERIFY AND ENSURE</strong> THAT ALL OF YOUR CHILDREN'S INFORMATION IS <strong> CORRECT AND UP TO DATE</strong>!!!
+                        </p>
+
+                        {% for message in messages %}
+                            {% if message.tags == "success" %}
+                                <h3 style="background-color:rgb(162, 255, 68)">ALERT: {{message}}</h3>
+                            {% elif message.tags == "error" %}
+                                <h3 style="background-color:tomato">ALERT: {{message}}</h3>
+                            {% else %}
+                                <h3 style="background-color:rgb(74, 255, 255)">ALERT: {{message}}</h3>
+                            {% endif %}
+                        {% endfor %}
+
+                        <table class="basicInfo">
+                            <tr>
+                                <th>Name</th>
+                                <th>Type of Care</th>
+                                <th>Age</th>
+                                <th>Clothing Size</th>
+                                <th>Shoe Size</th>
+                                <th>New Placement?</th>
+                                <th>Allergies</th>
+                                <th>Edit Info</th>
+                            </tr>
+                            
+                            
+                            {% for child in children %}
+                                <tr>
+                                    <td>{{child.firstName}}</td>
+                                    <td>{{child.careType}}</td>
+                                    <td>{{child.age}}</td>
+                                    <td>{{child.clothesSize}}</td>
+                                    <td>{{child.shoeSize}}</td>
+                                    <td>{{child.newPlacement}}</td>
+                                    <td>{{child.allergyDescription}}</td>
+                                    <td><a href="{% url 'update-child' child.id %}">Edit</a></td>
+                                </tr>
+                            {% endfor %}
+                        </table><br>
+
+                        {% for single_field in form %}
+                            {% if single_field.name == "forChild" %}
+                                <label for="{{single_field.name}}">{{single_field.label}}</label>
+                                {{single_field}}<br><br>
+                            {% endif %}
+                        {% endfor %}
+                        (Refresh this page to reflect changes)
+                        <br><br><br>
+
+
+                        <button type="button" class="previous npbutton" id="toBasic">&laquo; Back (to Step 1: info verification)</button>
+                        <button type="button" class="next npbutton" id="toForm">Next &raquo;</button>
+                    </div>
+
+                    
+
+
+
+
+
+
+                    <div style="display:none" class="newDiv" id="formDiv">
+                        <p>Step 3: fill out the form for needed items.</p>
+                        {% for message in messages %}
+                            {% if message.tags == "success" %}
+                                <h3 style="background-color:rgb(162, 255, 68)">ALERT: {{message}}</h3>
+                            {% elif message.tags == "error" %}
+                                <h3 style="background-color:tomato">ALERT: {{message}}</h3>
+                            {% else %}
+                                <h3 style="background-color:rgb(74, 255, 255)">ALERT: {{message}}</h3>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        <button type="button" class="previous npbutton" id="formToChild2">&laquo; Back (to Step 2: child selection)</button><br><br>
+                        
+                        <div class="newDiv alerts"></div><br>
+
+                        {% for single_field in form %}
+                            {% if single_field.name == "bedding" or single_field.name == "strollerType" or single_field.name == "formulaType" or single_field.name == "diapersSize" or single_field.name == "otherInfantNeeds" or single_field.name == "makeUpItemsDescription"  or single_field.name == "toysGamesBooks"  or single_field.name == "otherNeeds"%}
+                                <label for="{{single_field.name}}">{{single_field.label}}</label><br>
+                                {{single_field}}<br><br>
+                            {% elif single_field.name == "onesies" %}
+                                <h3>Infant Items</h3>
+                                {{single_field}}
+                                <label for="{{single_field.name}}">{{single_field.label}}</label><br><br>
+                            {% elif single_field.name == "shortSleeveShirts" %}
+                                <h3>Child/Teen Items</h3>
+                                {{single_field}}
+                                <label for="{{single_field.name}}">{{single_field.label}}</label><br><br>
+                            {% elif single_field.name == "toothbrush" %}
+                                <h3>Toiletries</h3>
+                                {{single_field}}
+                                <label for="{{single_field.name}}">{{single_field.label}}</label><br><br>
+                            {% elif single_field.name == "schoolSupplies" %}
+                                <h3>General Needs</h3>
+                                <label for="{{single_field.name}}">{{single_field.label}}</label><br>
+                                {{single_field}}<br><br>
+                            {% elif single_field.name != "forChild" %}
+                                {{single_field}}
+                                <label for="{{single_field.name}}">{{single_field.label}}</label><br><br>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        <br><div class="newDiv alerts"></div>
+                        <br>
+                        <input type="submit" name="submitter" class="go" value="Submit and make another request" onclick="return sendData(0)"><br>
+                        <input type="submit" name="submitter" class="go" value="Submit and proceed to the final step" onclick="return sendData(1)"><br><br>
+
+
+                        <button type="button" class="previous npbutton" id="formToChild">&laquo; Back (to Step 2: child selection)</button>
+                    </div>
+
+                </form>
+
+
+
+
+            {% endif %}
+
+
+            <script>
+                var infoDiv = document.getElementById("infoDiv");
+                var childDiv = document.getElementById("childDiv");
+                var formDiv = document.getElementById("formDiv");
+                
+                
+                $('#id_forChild').select2()
+
+
+                var infoToChildBtn = document.getElementById("infoToChild");
+                infoToChildBtn.addEventListener("click", goToChild);
+
+                var formToChildBtn = document.getElementById("formToChild");
+                formToChildBtn.addEventListener("click", goToChild);
+
+                var formToChildBtn2 = document.getElementById("formToChild2");
+                formToChildBtn2.addEventListener("click", goToChild);
+
+                var toFormBtn = document.getElementById("toForm");
+                toFormBtn.addEventListener("click", goToForm);
+
+                var toBasicBtn = document.getElementById("toBasic");
+                toBasicBtn.addEventListener("click", goToBasic);
+
+                if (!$('#id_stroller').is(":checked"))
+                {
+                    $('#id_strollerType').prop('disabled', true)
+                }
+                if (!$('#id_formula').is(":checked"))
+                {
+                    $('#id_formulaType').prop('disabled', true)
+                }
+                if (!$('#id_diapers').is(":checked"))
+                {
+                    $('#id_diapersSize').prop('disabled', true)
+                }
+                if (!$('#id_makeUpItems').is(":checked"))
+                {
+                    $('#id_makeUpItemsDescription').prop('disabled', true)
+                }
+                function toggleInp (id) {
+                    var elem = $(`#${id}`)
+                    if (elem.prop('disabled'))
+                    {
+                        elem.prop('disabled', false)
+                        elem.prop('required', true)
+                    }
+                    else
+                    {
+                        elem.prop('disabled', true)
+                        elem.prop('required', false)
+                    }
+                }
+                $('#id_stroller').on('click', function() { return toggleInp('id_strollerType') })
+                $('#id_formula').on('click', function() { return toggleInp('id_formulaType') })
+                $('#id_diapers').on('click', function() { return toggleInp('id_diapersSize') })
+                $('#id_makeUpItems').on('click', function() { return toggleInp('id_makeUpItemsDescription') })
+
+
+
+
+
+                function goToChild()
+                {
+                    childDiv.style.display = "block";
+                    formDiv.style.display = "none";
+                    infoDiv.style.display = "none";
+                }
+                
+
+                function goToForm()
+                {
+                    childDiv.style.display = "none";
+                    formDiv.style.display = "block";
+                    infoDiv.style.display = "none";
+                }
+
+                function goToBasic()
+                {
+                    infoDiv.style.display = "block";
+                    childDiv.style.display = "none";
+                    formDiv.style.display = "none";
+                }
+
+
+                function sendData(e) {
+                    
+                    $(".alerts").empty()
+                    var $form = $("#dataForm")
+                    var vals = getFormData($form)
+
+                    vals['submitter'] = e
+
+                    var updateUrl = '/new-request'
+                    $.ajax({
+                        method:'POST',
+                        url:updateUrl,
+                        headers: {'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()},
+                        data:vals,
+                        success:function(response) {
+                            var i = 0
+                            for (message of response[0])
+                            {
+                                $('.alerts').append(`<h3 class="danger">ALERT: ${message}</h3>`)
+                                i += 1
+                            }
+                            if (i == 0)
+                            {
+                                window.location.href = response[1]
+                            }
+                        }
+                    })
+
+                    return false
+                }
+                
+            </script>
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+

@@ -1,0 +1,36 @@
+{% extends 'nafcbase.html' %}
+{% load static %}
+{% block content %}
+
+<div class="body">
+	<div class="home">
+		<div class="section">
+            <h3>Welcome! Please Log In to continue.</h3>
+			<form action="login" method="post">
+                {% csrf_token %}
+
+                <label for="username">Username:</label><br>
+                <input type="text" name="username"><br><br>
+                <label for="password">Password:</label><br>
+                <input type="password" name="password"><br><br>
+                <input type="Submit" value="Submit" class="go">
+            </form>
+
+            <p>Don't have an account? <a href="register">Sign up!</a></p>
+            <p>Forgot your password? <a href="password-reset">Reset it!</a></p>
+
+            {% for message in messages %}
+                {% if message.tags == "success" %}
+                    <h3 style="background-color:rgb(162, 255, 68)">ALERT: {{message}}</h3>
+                {% elif message.tags == "error" %}
+                    <h3 style="background-color:tomato">ALERT: {{message}}</h3>
+                {% else %}
+                    <h3 style="background-color:rgb(74, 255, 255)">ALERT: {{message}}</h3>
+                {% endif %}
+            {% endfor %}
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+

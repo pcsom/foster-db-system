@@ -1,0 +1,775 @@
+/* Website template by freewebsitetemplates.com */
+/*------------------------- Fonts ---------------------------*/
+@font-face {
+	font-family: 'quattrocento_sansregular';
+	src: url('../fonts/quattrocentosans-regular-webfont.eot');
+	src: url('../fonts/quattrocentosans-regular-webfont.eot?#iefix') format('embedded-opentype'),  url('../fonts/quattrocentosans-regular-webfont.woff') format('woff'),  url('../fonts/quattrocentosans-regular-webfont.ttf') format('truetype'),  url('../fonts/quattrocentosans-regular-webfont.svg#quattrocento_sansregular') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+@font-face {
+	font-family: 'rokkittbold';
+	src: url('../fonts/rokkitt-bold-webfont.eot');
+	src: url('../fonts/rokkitt-bold-webfont.eot?#iefix') format('embedded-opentype'),  url('../fonts/rokkitt-bold-webfont.woff') format('woff'),  url('../fonts/rokkitt-bold-webfont.ttf') format('truetype'),  url('../fonts/rokkitt-bold-webfont.svg#rokkittbold') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+@font-face {
+	font-family: 'rokkittregular';
+	src: url('../fonts/rokkitt-regular-webfont.eot');
+	src: url('../fonts/rokkitt-regular-webfont.eot?#iefix') format('embedded-opentype'),  url('../fonts/rokkitt-regular-webfont.woff') format('woff'),  url('../fonts/rokkitt-regular-webfont.ttf') format('truetype'),  url('../fonts/rokkitt-regular-webfont.svg#rokkittregular') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+/*------------------------- Layout styles ------------------------*/
+body {
+	margin:0;
+	font-family: 'quattrocento_sansregular';
+	background:url(../images/bg-body.jpg);
+	display: inline-block;
+}
+a {
+	outline:none;
+}
+a img {
+	border:0;
+	display:block;
+}
+p a {
+	color:#000000;
+	text-decoration:underline;
+}
+p a:hover, a:hover {
+	color:#404040!important;
+}
+button {
+	font-size: 15px;
+}
+/*------------------------- HEADER -------------------------*/
+.header {
+	background-image:url(../images/bg-header.jpg);
+	background-repeat: repeat-x;
+	height:125px;
+	position: fixed;
+	width: 100%;
+	transition: 0.2s;
+}
+.header div {
+	margin: 0 auto;
+	overflow:hidden;
+	padding:0 10px;
+	padding-top:60px;
+	position: relative;
+	width:940px;
+	transition: 0.2s;
+	height: 45px;
+}
+.header div a#logo {
+	float:left;
+	left:40px;
+	position:absolute;
+	top:40px;
+	transition: 0.2s;
+}
+.header div a#logo img {
+	transition: 0.2s;
+}
+.header div div {
+	float:right;
+	margin:0;
+	padding:0;
+	position:static;
+	width:630px;
+}
+.header div div > a {
+	display:block;
+	float:right;
+	margin:0 19px 0 0;
+	width:201px;
+	height:58px;
+	background:url(../images/interface.png) no-repeat 0 -67px;
+	text-indent:-99999px;
+}
+.header div div > a:hover {
+	background:url(../images/interface.png) no-repeat 0 -126px;
+}
+.header div div ul {
+	clear:both;
+	list-style:none;
+	margin:0;
+	overflow:hidden;
+	padding:8px 0 0;
+}
+.header div div ul li:first-child {
+	margin:0;
+}
+.header div div ul li {
+	float:left;
+	margin:0 0 0 55px;
+}
+.header div div ul li a:first-child {
+	color:rgb(0, 0, 0);
+	display:inline;
+	float:none;
+	font-family:rokkittbold;
+	font-size:16px;
+	letter-spacing:.025em;
+	line-height:24px;
+	margin:0;
+	text-decoration:none;
+	/*text-shadow:2px 3px 2px rgb(126, 126, 126);*/
+}
+.header div div ul li a:hover, .header div div ul li.selected a {
+	color:#202020!important;
+}
+/*------------------------- Body ---------------------------*/
+.body {
+	padding-top:125px;
+}
+.body .home .featured {
+	background:url(../images/bg-featured.png) repeat-x;
+	height:396px;
+}
+.body .home .featured div {
+	background:url(../images/bg-featured.jpg) no-repeat;
+	height:396px;
+	margin:0 auto;
+	width:960px;
+}
+.body .home .featured div p {
+	color:#fff;
+	font-family:rokkittregular;
+	font-size:24px;
+	line-height:30px;
+	margin:0 0 0 78px;
+	padding:32px 0 0;
+	text-shadow:0 1px 1px #000;
+}
+.body .home .featured div h2 {
+	color:#FFF;
+	font-family:rokkittbold;
+	font-size:36px;
+	font-weight:400;
+	line-height:24px;
+	margin:0 0 0 78px;
+	padding:28px 0 0;
+	text-shadow:0 1px 1px #000;
+}
+.body .home .featured div h2 span {
+	color:#fff600;
+	font-size:48px;
+	line-height:30px;
+}
+.body .home .section {
+	margin:0 auto;
+	overflow:hidden;
+	padding:0 10px;
+	width:940px;
+}
+.body .home .section div:first-child {
+	float:left;
+}
+.body .home .section div:first-child div ul li a {
+	display:block;
+	margin:0 0 9px;
+}
+.body .home .section div:first-child div ul li h4 a {
+	color:#404040;
+	float:none;
+	font-family:inherit;
+	font-size:14px;
+	font-weight:400;
+	line-height:24px;
+	margin:0;
+	text-decoration:none;
+	text-transform:uppercase;
+}
+.body .home .section div:first-child div ul li p {
+	color:#838383;
+	font-family:inherit;
+	font-size:14px;
+	line-height:24px;
+	margin:0;
+}
+.body .home .section div:first-child div ul li p a {
+	display:inline;
+	float:none;
+	margin:0;
+}
+.body .home .section div div:first-child a img {
+	border:1px solid #d5d5d5;
+	display:block;
+	margin:0 0 9px;
+}
+.body .home .section div div ul {
+	list-style:none;
+	margin:0;
+	padding:0;
+}
+.body .about {
+	margin:0 auto;
+	padding:41px 10px 358px;
+	width:940px;
+}
+.body .about h2 {
+	color:#404040;
+	font-family:rokkittbold;
+	font-size:20px;
+	font-weight:400;
+	line-height:24px;
+	margin:0 0 15px;
+	text-decoration:none;
+	text-transform:uppercase;
+}
+.body .home .section div:first-child div h3, .body .home .section div div h3 {
+	display:block;
+	margin:0 0 14px;
+}
+.body .home .section div:first-child div h3 a, .body .home .section div div h3 a {
+	color:#404040;
+	font-family:rokkittbold;
+	font-size:20px;
+	font-weight:400;
+	line-height:24px;
+	text-decoration:none;
+	text-transform:uppercase;
+}
+.body .home .section div:first-child div ul, .body .about ul, .body .blog div.sidebar div ul, .body .blog-single div.sidebar div ul {
+	list-style:none;
+	margin:0;
+	overflow:hidden;
+	padding:0;
+}
+.body .home .section div:first-child div ul li:first-child, .body .home .section div:first-child div ul li h4, .body .about ul li:first-child, .body .gallery ul li:first-child, .body .donate div ul li:first-child {
+	margin:0;
+}
+.body .home .section div:first-child div ul li a img, .body .home .section div div ul li a img, .body .programs div img, .body .blog div ul li a img, .body .blog-single div.sidebar div.section ul li a img {
+	border:1px solid #D5D5D5;
+}
+.body .home .section div:first-child div ul li a img:hover, .body .home .section div div:first-child a img:hover, .body .home .section div div ul li a img:hover, .body .programs ul li a img:hover, .body .gallery ul li a img:hover, .body .blog div ul li a img:hover, .body .blog-single div.sidebar div.section ul li a img:hover {
+	filter:alpha(opacity=80);/* Needed for IE8 and old versions */
+	opacity:0.8;
+}
+.body .home .section div div:first-child p, .body .blog div ul li p, .body .blog-single div p {
+	color:#838383;
+	font-size:14px;
+	line-height:24px;
+	margin:0;
+}
+.body .home .section div div ul li:first-child, .body .programs div.sidebar div:first-child, .body .blog div.sidebar div:first-child, .body .blog-single div.sidebar div:first-child {
+	border-top:0;
+	padding-top:0;
+}
+
+/*------------------------- Footer -------------------------*/
+.footer {
+	background:url(../images/bg-footer.jpg) repeat-x left top;
+	height:250px;
+	padding:25px 0 3px;
+}
+.footer div:first-child {
+	margin-top:0;
+	overflow:hidden;
+}
+.footer div:first-child div:first-child {
+	margin:0;
+	padding:0 23px;
+}
+.footer div:first-child div:first-child ul {
+	list-style:none;
+	margin:0;
+	padding:0;
+	width:auto;
+}
+.footer div:first-child div:first-child ul li {
+	color:#838383;
+	float:none;
+	font-family:inherit;
+	font-size:13px;
+	line-height:24px;
+	margin:0;
+	padding:0 0 0 20px;
+}
+.footer div:first-child div:first-child ul li.phone-num {
+	background:url(../images/icon-phone.png) no-repeat left 7px;
+	margin:0 0 24px;
+}
+.footer div:first-child div:first-child ul li.email {
+	background:url(../images/icon-email.png) no-repeat left 8px;
+	margin:0 0 24px;
+}
+.footer div:first-child div:first-child ul li.email a {
+	text-transform:none;
+	 color: #CC6A00;
+}
+.footer div:first-child div:first-child ul li.email a:hover {
+	text-decoration:underline;
+	 color: #CC6A00!important;
+}
+.footer div:first-child div:first-child ul li.address {
+	background:url(../images/icon-address.png) no-repeat left 6px;
+}
+.footer div:first-child div {
+	float:left;
+	margin:0 0 0 20px;
+	padding:0 23px 0 27px;
+	width:auto;
+}
+.footer div:first-child div ul {
+	list-style:none;
+	margin:0;
+	padding:0;
+	width:400px;
+}
+.footer div:first-child div ul li {
+	margin:28px 0 0;
+}
+.footer div:first-child div ul li p {
+	color:#838383;
+	float:none;
+	font-family:inherit;
+	font-size:13px;
+	line-height:24px;
+	margin:0;
+	text-transform:none;
+}
+.footer div:first-child div ul li p a {
+	color:#838383;
+	display:inline;
+	font-size:13px;
+	line-height:24px;
+	text-decoration:underline;
+	text-transform:none;
+}
+.footer div:first-child div ul li span a {
+	color:#cc6a00;
+	display:inline;
+	font-size:13px;
+	text-transform:none;
+}
+.footer div:first-child div ul li span a:hover {
+	text-decoration:underline;
+	color:#cc6a00!important;
+}
+.footer div:first-child div.connect {
+	float:right;
+	margin:0;
+	padding:0 20px 0 0;
+}
+.footer div:first-child div.connect h4 {
+	margin:0 0 5px;
+}
+.footer div:first-child div.connect a {
+	color:#838383;
+	display:block;
+	font-family:inherit;
+	font-size:13px;
+	font-weight:400;
+	height:13px;
+	line-height:14px;
+	padding:0 0 0 20px;
+	text-decoration:none;
+}
+.footer div:first-child div.connect a:hover {
+	color:#838383!important;
+}
+.footer div:first-child div.connect a#facebook {
+	background:url(../images/icons.png) no-repeat 0 -36px;
+	margin:0 0 11px;
+}
+.footer div:first-child div.connect a#facebook:hover {
+	background:url(../images/icons.png) no-repeat 0 -90px;
+}
+.footer div:first-child div.connect a#twitter {
+	background:url(../images/icons.png) no-repeat 0 0;
+	margin:0 0 11px;
+}
+.footer div:first-child div.connect a#twitter:hover {
+	background:url(../images/icons.png) no-repeat 0 -72px;
+}
+.footer div:first-child div.connect a#googleplus {
+	background:url(../images/icons.png) no-repeat 0 -18px;
+}
+.footer div:first-child div.connect a#googleplus:hover {
+	background:url(../images/icons.png) no-repeat 0 -54px;
+}
+.footer div:first-child div.connect form {
+	margin:30px 0 0;
+	overflow:hidden;
+}
+.footer div:first-child div.connect form input {
+	background:url(../images/interface.png) no-repeat -78px 0;
+	border:0;
+	color:#838383;
+	cursor:auto;
+	float:left;
+	height:20px;
+	line-height:22px;
+	padding:3px 5px;
+	width:145px;
+}
+.footer div:first-child div.connect form input#submit {
+	background:url(../images/interface.png) no-repeat -234px 0;
+	cursor:pointer;
+	height:26px;
+	padding:0;
+	width:25px;
+}
+.footer div:first-child div.connect form input#submit:hover {
+	background:url(../images/interface.png) no-repeat -234px -27px;
+}
+.footer div {
+	margin:27px auto 0;
+	overflow:hidden;
+	padding:0 10px;
+	width:940px;
+}
+.footer div ul {
+	float:left;
+	list-style:none;
+	margin:0;
+	overflow:hidden;
+	padding:0;
+}
+.footer div ul li {
+	float:left;
+	margin:0 0 0 31px;
+}
+.footer div ul li a {
+	color:#838383;
+	display:block;
+	font-size:11px;
+	font-weight:400;
+	line-height:24px;
+	text-decoration:none;
+	text-transform:uppercase;
+}
+.footer div ul li a:hover {
+	color: #CC6A00!important;
+}
+.footer div p {
+	color:#838383;
+	float:right;
+	font-size:11px;
+	line-height:24px;
+	margin:0;
+	text-transform:uppercase;
+}
+.footer div:first-child div:first-child h4, .footer div:first-child div h4 {
+	color:#404040;
+	float:none;
+	font-family:inherit;
+	font-size:13px;
+	font-weight:400;
+	line-height:24px;
+	margin:0;
+	text-transform:uppercase;
+}
+.footer div:first-child div ul li:first-child, .footer div ul li:first-child {
+	margin:0;
+}
+.body form input {
+	font-family:quattrocento_sansregular;
+	font-size: 16px;
+}
+.body form textarea {
+	font-family:quattrocento_sansregular;
+	font-size: 15px;
+}
+
+textarea {
+	font-family: inherit;
+	font-size: 15px;
+}
+
+
+/*------FORMATTING FOR INFORMATION TABLES------*/
+
+.basicInfo {
+	font-family: Arial, Helvetica, sans-serif;
+	border-collapse: collapse;
+	width: 100%;
+}
+
+.tableNums {
+    counter-reset: rowNumber - 1;
+}
+  
+.basicInfo td, .basicInfo th {
+	border: 1px solid #ddd;
+	padding: 8px;
+}
+  
+.basicInfo tr:nth-child(even){
+	background-color: #f2f2f2;
+}
+  
+.basicInfo tr:hover {
+	background-color: #ddd;
+}
+  
+.basicInfo th {
+	padding-top: 12px;
+	padding-bottom: 12px;
+	text-align: left;
+	background-color: #5CAF50;
+	color: white;
+}
+
+.tableNums tr {
+    counter-increment: rowNumber;
+}
+
+.tableNums tbody tr::before {
+    content: counter(rowNumber);
+    min-width: 1em;
+	font-size: 13px;
+    margin-right: 01em;
+    margin-left: 0.2em;
+}
+
+
+/*------COLLAPSIBLES STYLING------*/
+
+/* Style the button that is used to open and close the collapsible content */
+.collapsible {
+	background-color: rgb(43, 43, 43);
+	color: rgb(255, 255, 255);
+	cursor: pointer;
+	padding: 20px;
+	width: 100%;
+	border: none;
+	text-align: left;
+	outline: none;
+	font-size: 18px;
+}
+
+.collapsibleContainer {
+	padding-bottom: 15px;
+}
+
+div.collapsibleContainer.manyList {
+	padding-bottom: 5px;
+}
+
+
+.smallPad {
+	padding-bottom: 5px;
+}
+
+/* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
+.active, .collapsible:hover {
+	background-color: rgb(63, 63, 63);
+}
+
+/* Style the collapsible content. Note: hidden by default */
+.collapsibleContent {
+	padding: 0 18px;
+	max-height: 0;
+	overflow: hidden;
+	transition: 0.2s ease-out;
+	background-color: #fafafa;
+	float:none;
+	margin: 0px 0px 0px 0px;
+	clear: both;
+	border-width: 0px;
+	border-color: rgb(43, 43, 43);
+	border-style: solid;
+}
+
+
+.collapsible:after {
+	content: '\02795'; /* Unicode character for "plus" sign (+) */
+	font-size: 13px;
+	color: white;
+	float: left;
+	margin-left: 0px;
+	margin-right: 10px;
+}
+
+button.manyList {
+	padding: 4px;
+	font-size: 15px;
+}
+
+.active:after {
+	content: "\2796"; /* Unicode character for "minus" sign (-) */
+}
+
+.thin {
+	padding: 10px;
+}
+
+.vThin {
+	padding: 6px;
+	margin-bottom:3px;
+}
+
+.light {
+	background-color: rgb(220, 220, 220);
+	color: rgb(0, 0, 0);
+}
+
+.light + .collapsibleContent {
+	border-color: rgb(220, 220, 220);
+}
+
+.light:hover {
+	background-color: rgb(233, 233, 233);
+}
+
+.generalColl {
+	background-color: rgb(24, 52, 212);
+	color: rgb(255, 255, 255);
+}
+
+.generalColl + .collapsibleContent {
+	border-color: rgb(24, 52, 212);
+}
+
+.generalColl:hover {
+	background-color: rgb(49, 77, 231);
+}
+
+
+/*------FORMATTING FOR BUTTONS------*/
+
+.hidden{
+	display:none;
+}
+.show {
+	display:unset;
+}
+
+
+.danger {
+	background-color: tomato;
+	padding: 5px 30px;
+	font-size: 15px;
+}
+.danger:hover {
+	background-color: rgb(255, 125, 125);
+}
+
+.normal {
+	background-color: rgb(61, 223, 207);
+	padding: 5px 30px;
+	font-size: 15px;
+}
+.normal:hover {
+	background-color: rgb(68, 230, 213);
+}
+
+.go {
+	background-color: rgb(155, 255, 109);
+	padding: 5px 30px;
+	font-size: 15px;
+}
+.go:hover {
+	background-color: rgb(196, 255, 169);
+}
+
+.activeBorder {
+	border-width: 7px;
+}
+
+.newDiv {
+	float:none;
+	margin: 0px 0px 0px 0px;
+	clear: both;
+}
+
+.previous {
+	background-color: #2fff8d;
+	color: black;
+}
+  
+.next {
+	background-color: #35ffff;
+	color: black;
+}
+
+.npbutton {
+	display: inline-block;
+	padding: 8px 16px;
+}
+
+.npbutton:hover {
+	background-color: #ddd;
+	color: black;
+}
+
+@media only screen and (max-width: 970px) {
+	.header div {
+		margin:0;
+	}
+	
+	.footer div {
+		margin:0;
+	}
+}
+
+
+.oneLineData {
+	white-space: nowrap;
+}
+
+.alignTab {
+	display:inline-block;
+	width:370px;
+}
+
+p.slim {
+	margin: 5px 0px;
+}
+
+
+.leftStickParent {
+	display:flex;
+}
+
+.leftStick {
+	position: sticky;
+	left: 10px;
+}
+
+
+.popup {
+	position: relative;
+	display: inline-block;
+}
+
+/* The actual popup */
+.popup .popuptext {
+	visibility: hidden;
+	width: 700px;
+	background-color: rgb(63, 63, 63);
+	color: #fff;
+	text-align: center;
+	border-radius: 6px;
+	padding: 10px 10px;
+	position: absolute;
+	z-index: 1;
+	top: 125%;
+	left: 50%;
+	margin-left: -80px;
+}
+
+/* Popup arrow */
+.popup .popuptext::before {
+	content: "";
+	position: absolute;
+	bottom: 100%;
+	left: 11%;
+	margin-left: -5px;
+	border-width: 7px;
+	border-style: solid;
+	border-color: transparent transparent rgb(63, 63, 63) transparent;
+}
+
+/* Toggle this class - hide and show the popup */
+.popup .showPop {
+	visibility: visible;
+	-webkit-animation: fadeIn 0.2s;
+	animation: fadeIn 0.2s;
+}

@@ -1,0 +1,111 @@
+
+{% extends 'nafcbase.html' %}
+{% load static %}
+{% block content %}
+
+<div class="body">
+	<div class="home">
+		<div class="section">
+            <h2>Update Your Basic Information</h2>
+
+            {% for message in messages %}
+				{% if message.tags == "success" %}
+					<h3 style="background-color:rgb(162, 255, 68)">ALERT: {{message}}</h3>
+				{% elif message.tags == "error" %}
+					<h3 style="background-color:tomato">ALERT: {{message}}</h3>
+				{% else %}
+					<h3 style="background-color:rgb(74, 255, 255)">ALERT: {{message}}</h3>
+				{% endif %}
+			{% endfor %}
+
+			<p>
+                Make any needed changes to the information below. Remember to click save.
+                <br>Required fields are marked by an asterisk (*) 
+            </p>
+
+            <div class="newDiv alerts"></div>
+
+            <style>
+                p {
+                    position: relative;
+                }
+                p label {
+                    position: absolute;
+                    width: 160px;
+                    left: 0;
+                    top: Xpx;
+                }
+                p input {
+                    margin-left: 165px;
+                }
+            </style>
+
+            <form action="" method="post" id="dataForm">
+                {% csrf_token %}
+
+                <label for="first_name">First Name: *</label><br>
+                <input type="text" name="first_name" value="{{curUser.first_name}}" required><br><br>
+
+                <label for="last_name">Last Name: *</label><br>
+                <input type="text" name="last_name" value="{{curUser.last_name}}" required><br><br>
+
+                <label for="last_name">Email: *</label><br>
+                <input type="email" name="email" value="{{curUser.email}}" required><br><br><br><br>
+
+                {% for single_field in form %}
+                    {% if single_field.name == "emailUpdateList" %}
+                        <label for="{{single_field.name}}">Would you like to be added to our contact lists to be notified of updates and events?</label><br>
+
+                        {{single_field}}
+                        <label for="{{single_field.name}}">{{single_field.label}}</label><br>
+                    {% elif single_field.name == "remindUpdateList" %}
+                        {{single_field}}
+                        <label for="{{single_field.name}}">{{single_field.label}}</label><br><br>
+                    {% else %}
+                        <label for="{{single_field.name}}">{{single_field.label}}</label><br>
+                        {{single_field}}<br><br>
+                    {% endif %}
+                {% endfor %}
+                <br>
+                
+                <input type="submit" value="Save" class="go">
+                <a href="{{back}}"><button type="button" class="danger">Cancel</button></a>
+            </form>
+
+            <div class="newDiv alerts"></div>
+
+            <script>
+
+                $('#dataForm').on('submit', function(e) {
+                    e.preventDefault()
+                    $(".alerts").empty()
+                    var $form = $("#dataForm")
+                    var vals = getFormData($form)
+                    var updateUrl = '/update-basic/{{pk}}'
+                    $.ajax({
+                        method:'POST',
+                        url:updateUrl,
+                        headers: {'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()},
+                        data:vals,
+                        success:function(response) {
+                            var i = 0
+                            for (message of response[0])
+                            {
+                                $('.alerts').append(`<h3 class="danger">ALERT: ${message}</h3>`)
+                                i += 1
+                            }
+                            if (i == 0)
+                            {
+                                window.location.href = response[1]
+                            }
+                        }
+                    })
+                })
+            </script>
+
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+

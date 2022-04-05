@@ -1,0 +1,98 @@
+
+{% extends 'nafcbase.html' %}
+{% load static %}
+{% block content %}
+
+<div class="body">
+	<div class="home">
+		<div class="section">
+
+            {% for message in messages %}
+				{% if message.tags == "success" %}
+					<h3 style="background-color:rgb(162, 255, 68)">ALERT: {{message}}</h3>
+				{% elif message.tags == "error" %}
+					<h3 style="background-color:tomato">ALERT: {{message}}</h3>
+				{% else %}
+					<h3 style="background-color:rgb(74, 255, 255)">ALERT: {{message}}</h3>
+				{% endif %}
+			{% endfor %}
+            <h3>Register for an account</h3>
+
+			<p>Please fill out the form below to get registered.<br>Required fields are marked by an asterisk (*) </p>
+
+            <div class="newDiv alerts"></div>
+
+            <form action="" method="post" id="dataForm">
+                {% csrf_token %}
+
+                <label for="first_name">First Name: *</label><br>
+                <input type="text" name="first_name" required><br><br>
+
+                <label for="last_name">Last Name: *</label><br>
+                <input type="text" name="last_name" required><br><br>
+
+                <label for="last_name">Email: *</label><br>
+                <input type="email" name="email" required><br><br><br><br>
+
+                {% for single_field in form %}
+                    {% if single_field.name == "emailUpdateList" %}
+                        <label for="{{single_field.name}}">Would you like to be added to our contact lists to be notified of updates and events?</label><br>
+
+                        {{single_field}}
+                        <label for="{{single_field.name}}">{{single_field.label}}</label><br>
+                    {% elif single_field.name == "remindUpdateList" %}
+                        {{single_field}}
+                        <label for="{{single_field.name}}">{{single_field.label}}</label><br><br>
+                    {% else %}
+                        <label for="{{single_field.name}}">{{single_field.label}}</label><br>
+                        {{single_field}}<br><br>
+                    {% endif %}
+                {% endfor %}
+                <br><br>
+
+                <label for="username">Enter Username: *</label><br>
+                <input type="text" name="username" required><br><br>
+                <label for="password1">Enter Password (can't be too similar to your other personal info, must be at least 8 characters long, and include at least one lowercase letter, uppercase letter, number, and symbol): *</label><br>
+                <input type="password" name="password1" required><br><br>
+                <label for="password2">Re-enter password (for confirmation): *</label><br>
+                <input type="password" name="password2" required><br><br>
+                
+                <input type="submit" value="Submit" class="go">
+            </form>
+
+            <div class="newDiv alerts"></div>
+
+            <script>
+
+                $('#dataForm').on('submit', function(e) {
+                    e.preventDefault()
+                    $(".alerts").empty()
+                    var $form = $("#dataForm")
+                    var vals = getFormData($form)
+                    var updateUrl = '/register'
+                    $.ajax({
+                        method:'POST',
+                        url:updateUrl,
+                        headers: {'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()},
+                        data:vals,
+                        success:function(response) {
+                            var i = 0
+                            for (message of response)
+                            {
+                                $('.alerts').append(`<h3 class="danger">ALERT: ${message}</h3>`)
+                                i += 1
+                            }
+                            if (i == 0)
+                            {
+                                window.location.href = '/login'
+                            }
+                        }
+                    })
+                })
+            </script>
+
+		</div>
+	</div>
+</div>
+
+{% endblock %}

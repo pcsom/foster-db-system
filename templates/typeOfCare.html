@@ -1,0 +1,249 @@
+{% extends 'nafcbase.html' %}
+{% load static %}
+{% block content %}
+
+<div class="body">
+	<div class="home">
+		<div class="section">
+
+			<h3>{{pn}} Type of Care</h3>
+						
+			{% for message in messages %}
+				{% if message.tags == "success" %}
+					<h3 style="background-color:rgb(162, 255, 68)">ALERT: {{message}}</h3>
+				{% elif message.tags == "error" %}
+					<h3 style="background-color:tomato">ALERT: {{message}}</h3>
+				{% else %}
+					<h3 style="background-color:rgb(74, 255, 255)">ALERT: {{message}}</h3>
+				{% endif %}
+			{% endfor %}
+
+			<p>Please select all that apply below{% if unsigned and same %} and agree to the Statement of Truthfulness{% endif %}.</p>
+			{% if unsigned and not same %}
+				<h4><strong>NOTE: As an admin, you may modify this new user's information, but they still must agree to the statement of truthfulness in order to access the site.</strong></h4>
+			{% endif %}
+
+			<div class="newDiv alerts"></div>
+
+			<form action="" method="post" id="careForm">
+				{% csrf_token %}
+
+				<label for="careType1"> "We are a ______ family." (check all that apply):</label><br><br><br><br>
+				
+
+
+
+				<input type="checkbox" onclick="selectCheck('adoptive', 'adoptiveElement')" id="adoptive" name="careType1" value="adoptive" {% if careType.adoptive %} checked="checked" {% endif %}>
+				<label for="adoptive"> <strong>Adoptive</strong></label><br><br>
+				
+				<div id="adoptiveElement" style="display: none;">
+					<label for="adoptedChildren">Please list the adopted children's names and their dates of adoption: *</label><br>
+					<textarea rows="5" cols="50" name="adoptedChildren" id="adoptedChildren">{{adoptive.adoptedChildren}}</textarea><br><br>	
+				</div>
+				<br><br>
+
+
+
+
+
+				<input type="checkbox" onclick="selectCheck('foster', 'fosterElement')" id="foster" name="careType2" value="foster" {% if careType.foster %} checked="checked" {% endif %}>
+				<label for="foster"> <strong>Foster</strong></label><br><br>
+				
+				<div id="fosterElement" style="display: none;">
+					<label for="fosterCounty">Fostering county: *</label><br>
+					<input type="text" name="fosterCounty" id="fosterCounty" value="{{foster.county}}"><br><br>
+					
+					<label for="agency">Fostering agency: *</label><br>
+					<input type="text" name="agency" id="agency" value="{{foster.agency}}"><br><br>
+					
+					<label for="fosterSocialWorkerName">Social worker's name: *</label><br>
+					<input type="text" name="fosterSocialWorkerName" id="fosterSocialWorkerName" value="{{foster.workerName}}"><br><br>
+					
+					<label for="fosterSocialWorkerContact">Social worker's phone or email: *</label><br>
+					<textarea rows="1" cols="50" name="fosterSocialWorkerContact" id="fosterSocialWorkerContact">{{foster.workerContact}}</textarea><br><br><br><br>	
+				</div>
+				<br><br>
+				
+				
+
+
+				<input type="checkbox" onclick="selectCheck('kinship', 'kinshipElement')" id="kinship" name="careType3" value="kinship" {% if careType.kinship %} checked="checked" {% endif %}>
+				<label for="kinship"> <strong>Kinship</strong></label><br><br>
+
+				<div id="kinshipElement" style="display: none;">
+					<label for="kinshipChildren">Please list the names of the children in your kinship: *</label><br>
+					<textarea rows="5" cols="50" name="kinshipChildren" id="kinshipChildren">{{kinship.children}}</textarea><br><br>
+					
+					<label for="placementRelation">Relationship to Kinship placement: *</label><br>
+					<textarea rows="1" cols="50" name="placementRelation" id="placementRelation">{{kinship.placementRelation}}</textarea><br><br>
+					
+					<label for="kinshipCounty">Kinship county: *</label><br>
+					<input type="text" name="kinshipCounty" id="kinshipCounty" value="{{kinship.county}}"><br><br>
+					
+					<label for="kinshipSocialWorkerName">Social worker's name: *</label><br>
+					<input type="text" name="kinshipSocialWorkerName" id="kinshipSocialWorkerName" value="{{kinship.workerName}}"><br><br>
+					
+					<label for="kinshipSocialWorkerContact">Social worker's phone or email: *</label><br>
+					<textarea rows="1" cols="50" name="kinshipSocialWorkerContact" id="kinshipSocialWorkerContact">{{kinship.workerContact}}</textarea><br><br>
+				</div>
+				<br><br>
+				
+
+				
+
+
+
+				<input type="checkbox" onclick="selectCheck('safety', 'safetyElement')" id="safety" name="careType4" value="safety" {% if careType.safety %} checked="checked" {% endif %}>
+				<label for="safety"> <strong>Safety Plan</strong></label><br><br>
+
+				
+				<div id="safetyElement" style="display: none;">
+					<label for="safetyCounty">Safety Plan county: *</label><br>
+					<input type="text" name="safetyCounty" id="safetyCounty" value="{{safety.county}}"><br><br>
+					
+					<label for="planTimeLength">How long have you been a safety plan for the child(ren)?: *</label><br>
+					<textarea rows="1" cols="50" name="planTimeLength" id="planTimeLength">{{safety.planTimeLength}}</textarea><br><br>
+					
+					<label for="safetySocialWorkerName">Social worker's name: *</label><br>
+					<input type="text" name="safetySocialWorkerName" id="safetySocialWorkerName" value="{{safety.workerName}}"><br><br>
+					
+					<label for="safetySocialWorkerContact">Social worker's phone or email: *</label><br>
+					<textarea rows="1" cols="50" name="safetySocialWorkerContact" id="safetySocialWorkerContact">{{safety.workerContact}}</textarea><br><br><br><br>	
+				</div>
+				<br><br>
+
+				
+
+
+				{% if unsigned and same %}
+					<p><strong>Statement of Truthfulness:</strong></p>
+					<p>This information is true and if/when it changes, I will update the form accordingly.  I understand all the items available to our family via the 
+						North Alabama Foster Closet & Fostering Connections have been donated for foster, adoptive, kinship, and safety plan families, are available to us 
+						for free to be used by people living in our home full-time or those receiving respite, and should be returned to the NAFC if we no longer need them 
+						and they are still in great shape and usable by another foster, adoptive, kinship or safety plan family. Items received are not to be sold or 
+						traded. The NAFC & FC wants to help as many families as possible, and I understand they are willing to discuss needs that fall outside of their 
+						target population.</p>
+					<label for="signature">Electronic Signature: *</label><br>
+					<input type="text" name="signature" required><br><br>
+					<label for="date">Date (MM/DD/YYYY): *</label><br>
+					<input type="text" name="date" required><br><br><br><br>
+				{% endif %}
+
+				<input type="submit" class="go" value="Submit">
+			</form>
+
+			<div class="newDiv alerts"></div>
+
+			<script>
+
+				$('#careForm').on('submit', function(e) {
+					e.preventDefault()
+				
+					var checkboxes = document.querySelectorAll('input[type="checkbox"]')
+					var checkedOne = Array.prototype.slice.call(checkboxes).some(x => x.checked)
+					if(checkedOne)
+					{
+						$(".alerts").empty()
+						var $form = $("#careForm")
+						var vals = getFormData($form)
+						var updateUrl = '/type-of-care/{{pk}}'
+						$.ajax({
+							method:'POST',
+							url:updateUrl,
+							headers: {'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()},
+							data:vals,
+							success:function(response) {
+								var i = 0
+								for (message of response[0])
+								{
+									$('.alerts').append(`<h3 class="danger">ALERT: ${message}</h3>`)
+									i += 1
+								}
+								if (i == 0)
+								{
+									window.location.href = response[1]
+								}
+							}
+						})
+					}
+					else
+					{
+						window.alert("Please select at least one care type!")
+					}
+				})
+
+				function selectCheck1(checkboxId, elementsClass) {
+					var elements = document.getElementsByClassName(elementsClass)
+					var ctr = 0
+					var isChecked = document.getElementById(checkboxId).checked
+					while(ctr < elements.length)
+					{
+						if ( isChecked )
+						{
+							if(elements[ctr].nodeName == "INPUT" || elements[ctr].nodeName == "TEXTAREA")
+							{
+								elements[ctr].setAttribute("required", "")
+							}
+							elements[ctr].className = elements[ctr].className.replace(/\bhidden\b/g, "show")
+							//elements[ctr].className = " show"
+						}
+						else
+						{
+							elements[ctr].removeAttribute("required")
+							elements[ctr].className = elements[ctr].className.replace(/\bshow\b/g, "hidden")
+							//elements[ctr].className = " hide"
+						}
+						ctr += 1
+					}
+				}
+
+				function selectCheck(checkboxId, divId) {
+					var mainDiv = document.getElementById(divId)
+					var subElems = document.getElementById(divId).children
+					//console.log(subElems[0])
+					//var elem = document.getElementById(divId)
+					//var one = subElems[3]
+					var isChecked = document.getElementById(checkboxId).checked
+					//console.log(subElems.length)
+
+					if(isChecked)
+					{
+						mainDiv.style.display = "block"
+					}
+					else
+					{
+						mainDiv.style.display = "none"
+					}
+
+
+					for(ctr = 0; ctr < subElems.length; ctr++)
+					{
+						if ( isChecked )
+						{
+							if(subElems[ctr].nodeName == "INPUT" || subElems[ctr].nodeName == "TEXTAREA")
+							{
+								subElems[ctr].setAttribute("required", "")
+							}
+						}
+						else
+						{
+							subElems[ctr].removeAttribute("required")
+						}
+					}
+				}
+
+				document.addEventListener("DOMContentLoaded", function() {
+					selectCheck('adoptive', 'adoptiveElement')
+					selectCheck('foster', 'fosterElement')
+					selectCheck('kinship', 'kinshipElement')
+					selectCheck('safety', 'safetyElement')
+				})
+			</script>
+
+
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+

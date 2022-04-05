@@ -1,0 +1,131 @@
+
+{% extends 'nafcbase.html' %}
+{% load static %}
+{% block content %}
+
+<div class="body">
+	<div class="home">
+		<div class="section">
+            <script src="{% static 'js/datepicker.js' %}"></script>
+            <link rel="stylesheet" href="{% static 'css/datepicker.css' %}" />
+
+			
+            {% if saving == "add" %}
+                <h2>Add a child</h2>
+			    <p>Please fill out the information below to add a child to {{pn}} account.<br>Required fields are marked by an asterisk (*)</p>
+            {% else %}
+                <h2>Update a child</h2>
+                <p>You may make changes to the child information below. Please remember to hit Save.<br>Required fields are marked by an asterisk (*)</p>
+            {% endif %}
+
+            {% for message in messages %}
+                {% if message.tags == "success" %}
+                    <h3 style="background-color:rgb(162, 255, 68)">ALERT: {{message}}</h3>
+                {% elif message.tags == "error" %}
+                    <h3 style="background-color:tomato">ALERT: {{message}}</h3>
+                {% else %}
+                    <h3 style="background-color:rgb(74, 255, 255)">ALERT: {{message}}</h3>
+                {% endif %}
+            {% endfor %}
+
+			<div class="newDiv alerts"></div>
+
+			<form action="" method="POST" id="dataForm">
+				{% csrf_token %}
+
+				{% for field in form %}
+                    {% if field.name == "hasAllergy" %}
+                        {{field}}
+                        <label for="{{field.name}}" id="lab_{{field.name}}">{{field.label}}</label><br><br>
+                    {% else %}
+                        <label for="{{field.name}}" id="lab_{{field.name}}">{{field.label}}</label><br>
+                        {{field}}<br><br>
+                    {% endif %}
+				{% endfor %}
+
+				{% if saving == 'update' %}
+					<input type="submit" value="Save" class="go" onclick="return sendData(-1)">
+					<a href='{{back}}'><button class="danger" type="button">CANCEL</button></a>
+				{% endif %}
+
+				{% if saving == 'add' %}
+					<input type="submit" class="go" name="submitter" value="Save and Add Another Child" onclick="return sendData(0)">
+					<input type="submit" class="go" name="submitter" value="Save and Go to Dashboard" onclick="return sendData(1)"><br><br>
+					<a href="{{back}}"><button class="danger" type="button">CANCEL</button></a>
+				{% endif %}
+			</form>
+
+			<div class="newDiv alerts"></div>
+
+			<script>
+
+                if (document.getElementById('id_hasAllergy').checked)
+                {
+                    $('#id_allergyDescription').removeClass("hidden");
+                    $('#lab_allergyDescription').removeClass("hidden");
+                }
+                else
+                {
+                    $('#id_allergyDescription').addClass("hidden");
+                    $('#lab_allergyDescription').addClass("hidden");
+                }
+
+                $('#id_hasAllergy').on('click', function()
+                {
+                    if (this.checked)
+                    {
+                        $('#id_allergyDescription').removeClass("hidden");
+                        $('#lab_allergyDescription').removeClass("hidden");
+                    }
+                    else
+                    {
+                        $('#id_allergyDescription').addClass("hidden");
+                        $('#lab_allergyDescription').addClass("hidden");
+                    }
+                })
+
+                $("#id_dateOfBirth").datepicker({
+                    format: 'mm/dd/yyyy',
+                })
+
+                function sendData(e) {
+                    
+                    $(".alerts").empty()
+                    var $form = $("#dataForm")
+                    var vals = getFormData($form)
+					
+					if (e != -1)
+					{
+						var redirs = ["Save and Add Another Child", "Save and Go to home"]
+						vals['submitter'] = redirs[e]
+					}
+
+                    var updateUrl = '/{{action}}-child/{{pk}}'
+                    $.ajax({
+                        method:'POST',
+                        url:updateUrl,
+                        headers: {'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()},
+                        data:vals,
+                        success:function(response) {
+                            var i = 0
+                            for (message of response[0])
+                            {
+                                $('.alerts').append(`<h3 class="danger">ALERT: ${message}</h3>`)
+                                i += 1
+                            }
+                            if (i == 0)
+                            {
+                                window.location.href = response[1]
+                            }
+                        }
+                    })
+
+					return false
+                }
+            </script>
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+

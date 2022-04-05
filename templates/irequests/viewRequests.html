@@ -1,0 +1,267 @@
+{% extends 'nafcbase.html' %}
+{% load static %}
+{% block content %}
+
+<div class="body">
+	<div class="home">
+		<div class="section">
+
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+		
+
+            <link href="{% static 'css/datepicker.css' %}" rel="stylesheet" />
+            <script src="{% static 'js/datepicker.js' %}"></script>
+
+            <h2>View {{pn}} Requests</h2>
+            {% csrf_token %}
+
+
+            {% for message in messages %}
+                {% if message.tags == "success" %}
+                    <h3 style="background-color:rgb(162, 255, 68)">ALERT: {{message}}</h3>
+                {% elif message.tags == "error" %}
+                    <h3 style="background-color:tomato">ALERT: {{message}}</h3>
+                {% else %}
+                    <h3 style="background-color:rgb(74, 255, 255)">ALERT: {{message}}</h3>
+                {% endif %}
+            {% endfor %}
+
+            {% if numReq == 0 %}
+                {% if plainPn == "you" %}
+                    <p>You haven't made any items requests yet! Please make a request <a href="/new-request">HERE</a> first.</p>
+                {% else %}
+                    <p>{{plainPn}} hasn't made any items requests yet!</p>
+                {% endif %}
+            {% else %}
+
+                <p>Here, you can find all of {{pn}} past item requests, initially sorted from latest to oldest. 
+                    Each gray box below represents a request; click them for more details.</p>
+                <p>A request labelled with (P) denotes that it is pending ({{plainPn}} submitted it recently, and NAFC hasn't started item collection yet).<br>
+                    A (C) means that the items for the request are currently being collected.<br>
+                    A (R) means that the items have been collected, and {{plainPn}} may pick them up at <a href="https://www.northalabamafostercloset.com/contact-us/" target="_blank">NAFC</a>.<br>
+                    A (F) denotes that {{plainPn}} already received the items and the request has been fulfilled.</p>
+
+                <br>
+                <div class="newDiv collapsibleContainer">
+                    <button type="button" class="collapsible light thin generalColl" id="filterColl">Search filters & sorting</button>
+                    <div class="collapsibleContent">
+                        <p>Filter by text: <input type="text" id="bar" class="aFilter"></p>
+                        <p>Filter by date (format MM/DD/YYYY): FROM: <input type="" id="date1" class="dateSelect aFilter"> TO: <input type="" id="date2" class="dateSelect aFilter"></p>
+                        <p>Sort order: 
+                            <input type="button" class="normal activeBorder" id="lo" value="Latest to Oldest"> 
+                            <input type="button" class="normal" id="ol" value="Oldest to Latest">
+                        </p>                        
+                    </div>
+                </div><br>
+                <h4 style="padding:0px; margin:0px;">{{numReq}} requests in total</h4>
+                <h4 style="padding:0px; margin:0px;" id="matchCount">{{numReq}} requests match the current search filters</h4>
+
+                <br>
+
+                <div id="reqCont">
+                    {% for oneReq in rev %}
+                        
+                        <div class="newDiv collapsibleContainer manyList" id='cc{{oneReq.id}}'>
+                            <button type="button" class="collapsible noContents reqBtn manyList light" id='btn{{oneReq.id}}'>{{oneReq.childDateInfo}}</button>
+                            <div class="collapsibleContent" id='cont{{oneReq.id}}'>
+                                <br>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+		</div>
+
+
+
+        <script>
+            //var coll = document.getElementsByClassName("collapsible");
+            var coll = $(`.collapsible`)
+            var i
+            var d1 = "{{itemsRequests}}"
+            var d2 = d1.replace(/&quot;/g,'"')
+            var d3 = d2.replace(/&#x27;/g,"'")
+            var iReqs = JSON.parse(d3)
+            var toAdd = ''
+            var finishCollAction, getReqData
+
+            $(function () {
+                $(".dateSelect").datepicker({
+                  format: 'mm/dd/yyyy',
+                })
+                $(".aFilter").val('')
+            })
+
+
+            
+            function getDetails(rid, data)
+            {
+                toAdd = '<strong>Method of Receiving: </strong>'
+                for (var i of data['receiving']['info'])
+                {
+                    toAdd += `${i}, `
+                }
+                toAdd += '<br><br><strong>Requested items:</strong><br>'
+                for (var i of data['fields'])
+                {
+                    if (i[1])
+                    {
+                        toAdd+= `-${i[0]}${i[1]}
+                        <br>`
+                    }
+                }
+
+                $(`#cont${rid}`).append(toAdd + '<br>')
+
+            }
+
+            $(window).on('load', function() {
+                coll.unbind()
+                coll.on("click", function() {
+                    var rawId = $(this).attr('id')
+                    if($(this).hasClass('noContents'))
+                    {
+                        $(this).removeClass('noContents')
+                        getReqData(rawId)
+                    }
+                    else
+                    {
+                        finishCollAction(rawId)
+                    }
+                });
+
+                function finishCollAction(rawId)
+                {
+                    $(`#${rawId}`).toggleClass("active")
+                    var content = $(`#${rawId}`).next()
+                    if (content.css("maxHeight") != "0px"){
+                        content.css("maxHeight", "0px")
+                        content.css("border-width", "0px")
+                    } else {
+                        content.css("maxHeight", content.prop("scrollHeight") + "px")
+                        content.css("border-width", "4px")
+                    }
+                }
+
+                function getReqData(rawId)
+                {
+                    var rid = Number(rawId.slice('3'))
+                    $.ajax({
+                        method:'POST',
+                        url:"/view-requests/" + "{{pk}}",
+                        headers: {'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()},
+                        data:{'dbId': iReqs[rid]['dbId']},
+                        success:function(response) {
+                            getDetails(rid, response)
+                            finishCollAction(rawId)
+                        }
+                    })
+                }
+            })
+
+
+
+
+            function makeChange()
+            {
+                var validReqs = reqs.filter(`:checkFrom('${fromDate}'):checkTo('${toDate}'):icontains('${toSearch}')`)
+                validReqs.parent().show()
+                reqs.not(validReqs).parent().hide()
+                $('#matchCount').text(`${validReqs.length} requests match the current search filters.`)
+            }
+
+            jQuery.expr[':'].icontains = function(a, i, m) {
+                return jQuery(a).text().toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
+            }
+
+            var toSearch = ""
+            var reqs =  $('.reqBtn')
+            var validReqs = reqs
+            $('#bar').on('input', function() {
+                toSearch = $(this).val()
+                makeChange()
+            })
+
+            function editDate(date)
+            {
+                var aslist = date.split('/')
+                return parseInt(aslist[2])*10000 + parseInt(aslist[0])*100 + parseInt(aslist[1])
+            }
+
+
+            var fromDate = "", toDate = "", fromEm = true, toEm = true
+            
+            jQuery.expr[':'].checkFrom = function(a, i, data) {
+                return editDate(jQuery(a).text().slice('-10')) >= editDate(data[3]) || fromEm
+            }
+            jQuery.expr[':'].checkTo = function(a, i, data) {
+                return editDate(jQuery(a).text().slice('-10')) <= editDate(data[3]) || toEm
+            }
+
+            function validDate(date)
+            {
+                var sep = date.split('/')
+                if (sep.length != 3)
+                {
+                    return false
+                }
+                
+                if (sep[0].length != 2 || isNaN(sep[1]))
+                {
+                    return false
+                }
+                if (sep[1].length != 2 || isNaN(sep[1]))
+                {
+                    return false
+                }
+                if (sep[2].length != 4 || isNaN(sep[1]))
+                {
+                    return false
+                }
+                return true
+            }
+
+            $("#date1").on('input', function() {
+                fromDate = $(this).val()
+                fromEm = fromDate == ""
+                if (fromEm || validDate(fromDate))
+                {
+                    makeChange()
+                }
+
+            })
+            $("#date2").on('input', function() {
+                toDate = $(this).val()
+                toEm = toDate == ""
+                if (toEm || validDate(toDate))
+                {
+                    makeChange()
+                }
+            })
+
+            function orderFunc(jObj, oth)
+            {
+                var reqCont = $('#reqCont')
+                if (!jObj.hasClass('activeBorder'))
+                {
+                    jObj.addClass('activeBorder')
+                    $(`#${oth}`).removeClass('activeBorder')
+                    var listItems = reqCont.children('.collapsibleContainer')
+                    reqCont.append(listItems.get().reverse())
+                }
+            }
+
+            $(`#lo`).on("click", function () {
+                orderFunc($(this), "ol")
+            })
+
+            $(`#ol`).on("click", function () {
+                orderFunc($(this), "lo")
+            })
+
+        </script>
+	</div>
+</div>
+
+{% endblock %}
+

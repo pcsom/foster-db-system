@@ -1,0 +1,172 @@
+
+{% extends 'nafcbase.html' %}
+{% load static %}
+{% block content %}
+
+<div class="body">
+	<div class="home">
+		<div class="section">
+			<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+			<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+			
+			<style>
+				.curC {
+					margin: 15px 0px 15px 0px;
+				}
+			</style>
+
+
+			<h3>Notify a user about their items requests</h3>
+			<p></p>
+
+            {% for message in messages %}
+            <h3> ALERT: {{message}} </h3>
+            {% endfor %}
+
+			<form action="" method="POST" id="msgForm">
+				{% csrf_token %}
+
+				Select a user:<br>
+				<select id="userSelect" form="msgForm" onchange="loadChanges()" style="width: 300px;">
+					{% for id, name in userList %}
+						<option value="{{id}}">{{name}}</option>
+					{% endfor %}
+				</select><br><br><br>
+
+				<label for="contactMethod">User's preferred method of contact: </label>
+				<input type="text" id="contactMethod" value="" size="80" disabled><br>
+
+				<label for="email">User's email: </label>
+				<input type="text" id="email" value="" size="80" disabled><br>
+
+				<label for="cellPhone">User's cell phone number: </label>
+				<input type="text" id="cellPhone" value="" size="80" disabled><br>
+
+				<label for="homePhone">User's home phone number: </label>
+				<input type="text" id="homePhone" value="" size="80" disabled><br><br>
+
+				<p>Were all of this family's pending requests completely fulfilled? If not, please 
+				indicate which items (and for which child) still need to be distributed to this
+				family:</p>
+				<button type="button" onclick="addChild()">Add child</button>
+
+				<!--
+					Select items requests that were completed:<br>
+					<button type="button" onclick="checkAll(true)">Select all</button>
+					<button type="button" onclick="checkAll(false)">Deselect all</button><br>
+				-->
+
+			</form>
+
+			<script>
+				$(document).ready(function () {
+					$(`select`).select2();
+					loadChanges()
+				});
+
+				function loadChanges() {
+					loadData()
+					loadChildren()
+				}
+
+				function loadData() {
+					var uId = document.getElementById("userSelect").value
+					var updateUrl = '/get-user-requests'
+					$.ajax({
+						method:'POST',
+						url:updateUrl,
+						data:{'id':uId},
+						success:function(uData) {
+							var theForm = document.getElementById("msgForm")
+							document.getElementById("contactMethod").value = uData.contactMethod
+							document.getElementById("email").value = uData.email
+							document.getElementById("cellPhone").value = uData.cellPhone
+							document.getElementById("homePhone").value = uData.homePhone
+							
+							var curReqs = theForm.getElementsByClassName("curReq")
+							var initLen = curReqs.length
+							for (var i = 0; i < initLen; i++)
+							{
+								theForm.removeChild(curReqs[0])
+							}
+
+							for (var i = 0; i < uData.requests.length; i++)
+							{
+								$('#msgForm').append(`<input type="checkbox" class="curReq curCheck" id="curReq-${i}">`)
+								$('#msgForm').append(`<label for="curReq-${i}" class="curReq"> ${uData.requests[i]}</label><br class="curReq">`)
+							}
+						}
+					})
+				}
+
+				var userChildren
+				function loadChildren() {
+					var uId = document.getElementById("userSelect").value
+					var updateUrl = '/get-user-children'
+					$.ajax({
+						method:'POST',
+						url:updateUrl,
+						data:{'id':uId},
+						success:function(uData) {
+							userChildren = uData
+							
+							var theForm = document.getElementById("msgForm")
+							var curChildrenElems = theForm.getElementsByClassName("curC")
+							var initLen = curChildrenElems.length
+							for (var i = 0; i < initLen; i++)
+							{
+								theForm.removeChild(curChildrenElems[0])
+							}
+						}
+					})
+				}
+
+				/*function checkAll(mode) {
+					var boxes = document.getElementsByClassName("curCheck")
+					for (var i = 0; i < boxes.length; i++)
+					{
+						boxes[i].checked = mode
+					}
+				}*/
+
+				//userChildren is list of lists like the userList in the html. It's id, name
+				function makeChildMenu(selectId) {
+					for (var i = 0; i < userChildren.children.length; i++)
+					{
+						$(`#${selectId}`).append(`<option value="${userChildren.children[i][0]},${userChildren.children[i][1]}">${userChildren.children[i][1]}</option>`)
+					}
+				}
+
+				function removeSelect(delClass) {
+					$(`.${delClass}`).detach()
+				}
+
+				var options = ['Onesies', 'Two Piece Outfits', 'Sleep Sack', 'Crib Sheets', 'Crib', 'Bibs', 'Receiving Blankets', 'Burp Cloths', 'Washcloths', 'Bottles', 'Stroller', 'Formula', 'Diapers', 'Wipes', 'Other Infant Needs', 'Short Sleeve Shirts', 'Long Sleeve Shirts', 'Shorts', 'Long Pants', 'Pajamas', 'Dress Clothes', 'Dresses', 'Winter Coats', 'Swimwear', 'Holiday Outfit', 'Shoes', 'Toothbrush', 'Toothpaste', 'Deodorant', 'Soap', 'Shampoo', 'Ethnic Hair Cair Products', 'Hair Accessories', 'Make Up Items', 'School Supplies', 'Toys Games Books', 'Bedding', 'Weighted Blanket', 'Other Needs']
+				var addedC = 0
+				function addChild() {
+					addedCopy = addedC + 1
+					$('#msgForm').append(
+						`<div class="curC childContainer-${addedC}" id="childContainer-${addedC}">
+							<select id="select-${addedC}" style="width: 100px;"></select>
+							<button type="button" class="danger" onclick="removeSelect('childContainer-${addedC}')">Remove child from this list</button><br>
+							Select items: <select multiple="multiple" id="itemSelect-${addedC}" class="itemSelect-${addedC}" style="min-width: 400px;"></select>
+						<div>`
+					)
+					makeChildMenu(`select-${addedC}`)
+					
+					for(var i = 0; i < options.length; i++)
+					{
+						$(`#itemSelect-${addedC}`).append(`<option value="${options[i]}">${options[i]}</option>`)
+					}
+					$(`#itemSelect-${addedC}`).select2();
+					$(`#select-${addedC}`).select2();
+
+					addedC = addedCopy
+				}
+			</script>
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+

@@ -1,0 +1,108 @@
+
+{% extends 'nafcbase.html' %}
+{% load static %}
+{% block content %}
+
+<div class="body">
+	<div class="home">
+		<div class="section">
+
+            <link href="{% static 'css/select2.css' %}" rel="stylesheet" />
+            <script src="{% static 'js/select2.js' %}"></script>
+            <link href="{% static 'css/datepicker.css' %}" rel="stylesheet" />
+            <script src="{% static 'js/datepicker.js' %}"></script>
+            
+            <div class="newDiv alerts"></div>
+
+			<h2>Add an entry to the distribution log</h2>
+            {% for message in messages %}
+                {% if message.tags == "success" %}
+                    <h3 style="background-color:rgb(162, 255, 68)">ALERT: {{message}}</h3>
+                {% elif message.tags == "error" %}
+                    <h3 style="background-color:tomato">ALERT: {{message}}</h3>
+                {% else %}
+                    <h3 style="background-color:rgb(74, 255, 255)">ALERT: {{message}}</h3>
+                {% endif %}
+            {% endfor %}
+
+            <p>Required fields are marked by an asterisk (*)</p>
+            
+            <form action="" method="POST" id="dataForm">
+                {% csrf_token %}
+
+                <label for="familyLastName">Please select the family that is receiving items: *</label><br>
+                <select name="familyLastName" id="userSelect">
+                    {% for id, name in userList %}
+                        <option value='{{id}}'>{{name}}</option>
+                    {% endfor %}
+                </select><br><br>
+
+                {% for single_field in form %}
+                    
+                    {% if single_field.name == "onesies" %}
+                        <h3>Infant Items</h3>
+                    {% elif single_field.name == "shortSleeveShirts" %}
+                        <h3>Child/Teen Items</h3>
+                    {% elif single_field.name == "toothbrush" %}
+                        <h3>Toiletries</h3>
+                    {% elif single_field.name == "schoolSupplies" %}
+                        <h3>General Needs</h3>
+                    {% endif %}
+                    
+                    {% if single_field.name == "dateDistributed" %}
+                        <label for="{{single_field.name}}">{{single_field.label}}</label><br>
+                        {{single_field}}<br><br>
+                    {% else %}
+                        <input type="checkbox" id="{{single_field.name}}" name="{{single_field.name}}">
+                        <label for="{{single_field.name}}">{{single_field.label}}</label><br>
+                        {{single_field}}<br><br>
+                    {% endif %}
+                {% endfor %}
+
+                <input type="submit" name="submitter" value="Submit" class="go">
+            </form>
+            <a href="/"><button class="danger">Cancel</button></a>
+
+            <div class="newDiv alerts"></div>
+
+            <script>
+                $(function () {
+                  $("#id_dateDistributed").datepicker({
+                    format: 'mm/dd/yyyy',
+                  })
+                  $(`#userSelect`).select2()
+                })
+
+
+                $('#dataForm').on('submit', function(e) {
+                    e.preventDefault()
+                    $(".alerts").empty()
+                    var $form = $("#dataForm")
+                    var vals = getFormData($form)
+                    var updateUrl = '/add-dist-entry'
+                    $.ajax({
+                        method:'POST',
+                        url:updateUrl,
+                        headers: {'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()},
+                        data:vals,
+                        success:function(response) {
+                            var i = 0
+                            for (message of response)
+                            {
+                                $('.alerts').append(`<h3 class="danger">ALERT: ${message}</h3>`)
+                                i += 1
+                            }
+                            if (i == 0)
+                            {
+                                window.location.href = '/'
+                            }
+                        }
+                    })
+                })
+            </script>
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+

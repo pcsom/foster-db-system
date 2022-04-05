@@ -1,0 +1,233 @@
+{% extends 'nafcbase.html' %}
+{% load static %}
+{% block content %}
+
+<div class="body">
+	<div class="home">
+		<div class="section">
+			<meta name="viewport" content="width=device-width, initial-scale=1">
+						
+
+			<h1>Dashboard</h1>
+			<p>Welcome, {{curUser.first_name}} {{curUser.last_name}}! Click on a section below to get started.
+				{% if admin == "True" %} Under "Admin Functions" you will find options for family/data/log management.
+				Under "Caregiver Functions" you will find options to manage your own info and request items if you have your own foster family. {% endif %}</p>
+
+			{% for message in messages %}
+				{% if message.tags == "success" %}
+					<h3 style="background-color:rgb(162, 255, 68)">ALERT: {{message}}</h3>
+				{% elif message.tags == "error" %}
+					<h3 style="background-color:tomato">ALERT: {{message}}</h3>
+				{% else %}
+					<h3 style="background-color:rgb(74, 255, 255)">ALERT: {{message}}</h3>
+				{% endif %}
+			{% endfor %}
+			<br>
+
+
+
+			{% if admin == "True" %}
+				<h2>Admin Functions</h2>
+				
+				<div class="newDiv collapsibleContainer">
+					<button type="button" class="collapsible"><strong> Requests Management</strong></button>
+					<div class="collapsibleContent">
+						<p>> <a href="/view-all-requests/11">View/manage items requests</a></p>
+						<p>> <a href="/notify-requests">Notify a family about their request(s)</a></p>
+						<p>> <a href="/request-track-info">See information about the request tracking system</a></p>
+					</div>
+				</div>
+
+				<div class="newDiv collapsibleContainer">
+					<button type="button" class="collapsible"><strong> Logs</strong></button>
+					<div class="collapsibleContent">
+						<br>
+						<h3>Distribution Log</h3>
+						<p>> <a href="/view-dist-log">View the distribution log</a></p>
+						<p>> <a href="/add-dist-entry">Add a distribution entry</a></p><br>
+
+						<h3>Donor Log</h3>
+						<p>> <a href="/view-donor-log">View the donor log</a></p>
+						<p>> <a href="/add-donor-entry">Add an entry to the donor log</a></p><br>
+
+						<h3>Volunteer Hours Log</h3>
+						<p>> <a href="/view-hours-log">View the volunteer hours entry log</a></p>
+						<p>> <a href="/all-vol-info">View individual volunteer info</a></p>
+						<p>> <a href="/add-hours-entry">Add a volunteer entry</a></p>
+					</div>
+				</div>
+
+				<div class="newDiv collapsibleContainer">
+					<button type="button" class="collapsible"><strong> Family Data Management</strong></button>
+					<div class="collapsibleContent">
+						<p>> <a href="all-family-info">View all family data</a></p>
+						<p>> <a href="all-child-info">View all children data</a></p>
+					</div>
+				</div>
+
+				<br>
+				<h2>Caregiver Functions</h2>
+			{% endif %}
+
+
+			<div class="newDiv collapsibleContainer">
+				<button type="button" class="collapsible"><strong> Requests</strong></button>
+				<div class="collapsibleContent">
+					<p>> <a href="new-request">Make a request</a> (any items, any number of times)</p>
+					<p>> <a href="{% url 'view-requests' curUser.id %}">View requests you've made</a></p>
+					<p>> <a href="receiving">Set your preferred method of receiving items</a></p>
+				</div>
+			</div>
+
+			<div class="newDiv collapsibleContainer">
+				<button type="button" class="collapsible"><strong> Your Information</strong></button>
+				<div class="collapsibleContent">
+					<br><h3>Account Details</h3>
+					<strong style="color:rgb(91, 165, 85)">Username:</strong> {{curUser.username}}<br>
+					> <a href="{% url 'change-username' curUser.id %}">Change Username</a> <strong style="color:rgb(255, 255, 255)">......</strong> > <a href="password-change">Change Password</a><br><br><br>
+
+
+					<h3>Type of Care</h3>
+					Your family is...
+					<table class="basicInfo">
+						<tr>
+							<th>Adoptive?</th>
+							<th>Foster?</th>
+							<th>Kinship?</th>
+							<th>Safety Plan?</th>
+						</tr>
+
+						<tr>
+							{% if currentCareType.adoptive %}
+								<td>Yes</td>
+							{% else %}
+								<td>No</td>
+							{% endif %}
+							
+							{% if currentCareType.foster %}
+								<td>Yes</td>
+							{% else %}
+								<td>No</td>
+							{% endif %}
+							
+							{% if currentCareType.kinship %}
+								<td>Yes</td>
+							{% else %}
+								<td>No</td>
+							{% endif %}
+							
+							{% if currentCareType.safety %}
+								<td>Yes</td>
+							{% else %}
+								<td>No</td>
+							{% endif %}
+							
+						</tr>
+					</table>
+					<p>> <a href="{% url 'type-of-care' curUser.id %}">Change or view more of your care type info</a></p><br>
+
+					<h3>Basic Information</h3>
+					<table class="basicInfo">
+						<tr>
+							<th>Last Name</th>
+							<th>First Name</th>
+							<th>Address</th>
+							<th>City</th>
+							<th>State</th>
+							<th>ZIP</th>
+							<th>County</th>
+							<th>Cell Phone</th>
+						</tr>
+
+						<tr>
+							<td>{{curUser.last_name}}</td>
+							<td>{{curUser.first_name}}</td>
+							<td>{{basicInfo.address}}</td>
+							<td>{{basicInfo.city}}</td>
+							<td>{{basicInfo.state}}</td>
+							<td>{{basicInfo.zipCode}}</td>
+							<td>{{basicInfo.county}}</td>
+							<td>{{basicInfo.cellPhone}}</td>
+						</tr>
+					</table><br>
+
+					<table class="basicInfo">
+						<tr>
+							<th>Home Phone</th>
+							<th>Email</th>
+							<th>Contact Method</th>
+							<th>Email Updates?</th>
+							<th>Remind Updates?</th>
+						</tr>
+
+						<tr>
+							<td>{{basicInfo.homePhone}}</td>
+							<td>{{curUser.email}}</td>
+							<td>{{basicInfo.get_contactMethod_display}}</td>
+							{% if basicInfo.emailUpdateList %}
+								<td>Yes</td>
+							{% else %}
+								<td>No</td>
+							{% endif %}
+
+							{% if basicInfo.remindUpdateList %}
+								<td>Yes</td>
+							{% else %}
+								<td>No</td>
+							{% endif %}
+						</tr>
+					</table>
+					<p>> <a href="{% url 'update-basic' curUser.id %}">Change your basic information</a></p>
+				</div>
+			</div>
+
+			<div class="newDiv collapsibleContainer">
+				<button type="button" class="collapsible"><strong> Your Children</strong></button>
+				<div class="collapsibleContent">
+					{% if children %}
+						<br>
+						<table class="basicInfo">
+							<tr>
+								<th>Name</th>
+								<th>Type of Care</th>
+                                <th>Age</th>
+                                <th>Clothes Size</th>
+                                <th>Shoe Size</th>
+                                <th>New Placement?</th>
+                                <th>Allergies</th>
+								<th>Update Info</th>
+								<th>Delete Child</th>
+							</tr>
+			
+							{% for child in children %}
+								<tr>
+									<td>{{child.firstName}}</td>
+									<td>{{child.careType}}</td>
+                                    <td>{{child.age}}</td>
+                                    <td>{{child.clothesSize}}</td>
+                                    <td>{{child.shoeSize}}</td>
+                                    <td>{{child.newPlacement}}</td>
+                                    <td>{{child.allergyDescription}}</td>
+									<td><a href="{% url 'update-child' child.id %}">Update</a></td>
+									<td><a href="{% url 'delete-child' child.id %}">Delete</a></td>
+								</tr>
+							{% endfor %}
+						</table>
+					{% else %}
+						<p>:( You have not added any children to your account!</p>
+					{% endif %}
+					<p>> <a href="{% url 'add-child' curUser.id %}" target="_blank">Add a child's information to your account</a></p>
+				</div>
+			</div>
+			
+
+			
+			<script>
+				
+			</script>
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+

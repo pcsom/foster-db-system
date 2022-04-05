@@ -1,0 +1,234 @@
+
+{% extends 'nafcbase.html' %}
+{% load static %}
+{% block content %}
+
+<div class="body">
+	<div class="home">
+		<div class="section">
+			<link href="{% static 'css/select2.css' %}" rel="stylesheet" />
+			<script src="{% static 'js/select2.js' %}"></script>
+			
+			<style>
+				.curC {
+					margin: 20px 0px 20px 0px;
+				}
+
+				#notComplete {
+					border:black solid 1px;
+					padding: 0px 15px 0px 15px;
+				}
+
+				#addC {
+					margin-bottom: 10px;
+				}
+			</style>
+
+
+			<h3>Notify a family about their items requests</h3>
+			<p>
+				On this page, you can send a family an email alert that the items they requested are ready for pickup/delivery.<br>
+				This action will set all (C) requests to the (R) status; (P) requests will remain as (P). <a href="/request-track-info">What do these mean?</a>
+			</p>
+
+            {% for message in messages %}
+				{% if message.tags == "success" %}
+					<h3 style="background-color:rgb(162, 255, 68)">ALERT: {{message}}</h3>
+				{% elif message.tags == "error" %}
+					<h3 style="background-color:tomato">ALERT: {{message}}</h3>
+				{% else %}
+					<h3 style="background-color:rgb(74, 255, 255)">ALERT: {{message}}</h3>
+				{% endif %}
+			{% endfor %}
+
+
+			<form action="" method="POST">
+				{% csrf_token %}
+				Select a family/user:<br>
+				<select id="userSelect" name="userSelect" onchange="loadData()" style="width: 300px;">
+					{% for id, name in userList %}
+						<option value="{{id}}">{{name}}</option>
+					{% endfor %}
+				</select><br>
+
+				
+				<h4 id="noPend" hidden>ALERT: There are no items that are ready to be sent to this family; i.e., the system didn't find any (C) requests</h4> <br><br>
+
+
+				<label for="contactMethod">User's preferred method of contact: </label>
+				<input type="text" id="contactMethod" value="" size="80" disabled><br>
+
+				<label for="email">User's email: </label>
+				<input type="text" id="email" value="" size="80" disabled><br>
+
+				<label for="cellPhone">User's cell phone number: </label>
+				<input type="text" id="cellPhone" value="" size="80" disabled><br>
+
+				<label for="homePhone">User's home phone number: </label>
+				<input type="text" id="homePhone" value="" size="80" disabled><br><br><br>
+
+				<label for="pmor">User's preferred method of receiving items: </label><br>
+				<input type="text" id="pmor" value="" size="140" disabled><br><br>
+
+
+				Through which means is this family receiving their requested items?<br>
+				<select id="receiving" onchange="loadReceiving()">
+					<option value="1">All items will be delivered to the family</option>
+					<option value="2">The family will be picking up all items at NAFC</option>
+				</select><br><br>
+
+				This is the message that will be sent to this user. Edit the contents if you wish.<br>
+				WARNING: Your edits will be cleared if you make changes to any of the selections/information above.<br>
+				<textarea id="theMessage" name="theMessage" rows=10 cols=80></textarea><br>
+				<input type="submit" class="go" value="Send">
+			</form>
+			
+
+			<script>
+				$(document).ready(function () {
+					$(`#userSelect`).select2()
+					$(`#receiving`).select2()
+					loadData()
+					loadReceiving()
+				});
+
+
+				var selUser = "--Loading--", selReceiving, uId, reqList = "--Loading--\n"
+				var fyi = "NAFC is open Monday through Saturday, 8 to 11 A.M."
+
+				var pickupOptions = ["These items will be delivered to your address!", 
+					"These items are ready for pickup!", 
+				]
+
+				function resetPick() {
+					pickupOptions = ["These items will be delivered to your address!", "These items are ready for pickup!"]
+				}
+
+				function loadFinalMessage() {
+					finalMessage = `Dear ${selUser},\n\n` + reqList +
+					`${selReceiving}\n\nThank you,\nNorth Alabama Foster Closet`
+
+					$('#theMessage').val(finalMessage)
+				}
+
+				function loadReceiving() {
+					var recNum = Number($(`#receiving`).val())
+					selReceiving = pickupOptions[recNum - 1]
+					loadFinalMessage()
+				}
+				
+				var ajaxObj, firstReq = true
+
+				function loadData() {
+					if (firstReq)
+					{
+						firstReq = false
+					}
+					else
+					{
+						ajaxObj.abort()
+					}
+
+					$("#addC").prop('disabled', true)
+					$("#contactMethod").val("Loading...")
+					$("#email").val("Loading...")
+					$("#cellPhone").val("Loading...")
+					$("#homePhone").val("Loading...")
+					$("#pmor").val("Loading...")
+					selUser = "--Loading--"
+					reqList = "--Loading--\n"
+					selReceiving = ""
+					loadFinalMessage()
+
+					uId = $(`#userSelect`).val()
+					var updateUrl = '/get-user-requests'
+					ajaxObj = $.ajax({
+						method:'POST',
+						url:updateUrl,
+                        headers: {'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()},
+						data:{'id':uId},
+						success:function(uData) {
+							$("#contactMethod").val(uData.contactMethod)
+							$("#email").val(uData.email)
+							$("#cellPhone").val(uData.cellPhone)
+							$("#homePhone").val(uData.homePhone)
+							var recStr = ""
+							for (info of uData.receiving)
+							{
+								recStr += info + ", "
+							}
+							$("#pmor").val(recStr.slice(0, -2))
+
+							reqList = "You recently made the following requests to the North Alabama Foster Closet:\n"
+							for (var i = 0; i < uData.reqNames.length; i++)
+							{
+								reqList += `\t-Items${uData.reqNames[i]}\n`
+							}
+							reqList += '\n'
+
+							resetPick()
+							if (uData.receiving[0][0] == "P")
+							{
+								var times = ' ' + fyi
+								if(uData.receiving.length == 2)
+								{
+									times += ", and you indicated that you wanted to pick the items up at the following time (A.M.):\n\t"
+								}
+								else
+								{
+									times += ", and you indicated that you wanted to pick the items up at one of the following times (A.M.):\n"
+								}
+
+								for (var i = 1; i < uData.receiving.length; i++)
+								{
+									times += '\t-' + uData.receiving[i] + "\n"
+								}
+								times = times.slice('0', '-1') + "\n"
+								pickupOptions[1] += times
+								$("#receiving").val('2')
+							}
+							else
+							{
+								pickupOptions[1] = "These items are ready for pickup! " + fyi
+								$("#receiving").val('1')
+							}
+
+
+							if (uData.noPend)
+							{
+								$("#noPend").removeAttr("hidden")
+							}
+							else
+							{
+								$("#noPend").hide()
+							}
+							selUser = uData.name
+							loadReceiving()
+						}
+					})
+
+					return 0
+				}
+
+				
+				function done() {
+
+					var toSend = $('#theMessage').val()
+					var updateUrl = '/notify-requests'
+					$.ajax({
+						method:'POST',
+						url:updateUrl,
+                        headers: {'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()},
+						data:{'theMessage':toSend, 'uId':uId},
+						success:function() {
+							window.location.href = '/'
+						}
+					})
+				}
+			</script>
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+

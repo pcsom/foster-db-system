@@ -1,0 +1,115 @@
+{% extends 'nafcbase.html' %}
+{% load static %}
+{% block content %}
+
+<div class="body">
+	<div class="home">
+		<div class="section">
+            {% for day in rest %}
+                <meta id="day-{{day}}" data-name="{{day}}">
+            {% endfor %}
+            <style type="text/css">
+                
+                .tab { margin-left: 50px; }
+                .xtratab { margin-left: 90px; }
+                
+            </style>
+
+            <h2>Method of Receiving</h2>
+
+            {% for message in messages %}
+                {% if message.tags == "success" %}
+                    <h3 style="background-color:rgb(162, 255, 68)">ALERT: {{message}}</h3>
+                {% elif message.tags == "error" %}
+                    <h3 style="background-color:tomato">ALERT: {{message}}</h3>
+                {% else %}
+                    <h3 style="background-color:rgb(74, 255, 255)">ALERT: {{message}}</h3>
+                {% endif %}
+            {% endfor %}
+
+            {% if not noReqs %}
+                <p>
+                    Please select your preferred method of receiving the items you 
+                    asked for in your latest (pending) requests. You can view your 
+                    requests <a target="_blank" href="/view-requests/{{selfId}}">here</a>. 
+                    If you already made a selection in the past, it will be shown below.
+                </p>
+
+                <form action="" method="POST" id="dataForm">
+                    {% csrf_token %}
+
+                    <input type="radio" id="delivery" name="method" value="delivery">
+                    <label for="delivery"> Delivery to home - a volunteer will drop your items on your porch as soon as possible after your request(s) is filled.</label><br><br>
+                    <input type="radio" id="pickup" name="method" value="pickup">
+                    <label for="pickup"> Pick-up at foster closet (5510 Alabama 53, Harvest, AL 35749).</label><br>
+
+                    <label for="contList" class="tab"> -If you chose to pick up, please select days you are available to come by (all times are AM):</label><br>
+                    <input type="checkbox" id="mon" name="mon" class="xtratab">
+                    <label for="mon"> Mondays 8-11</label><br>
+                    <input type="checkbox" id="tue" name="tue" class="xtratab">
+                    <label for="tue"> Tuesdays 8-11</label><br>
+                    <input type="checkbox" id="wed" name="wed" class="xtratab">
+                    <label for="wed"> Wednesdays 8-11</label><br>
+                    <input type="checkbox" id="thu" name="thu" class="xtratab">
+                    <label for="thu"> Thursdays 8-11</label><br>
+                    <input type="checkbox" id="fri" name="fri" class="xtratab">
+                    <label for="fri"> Fridays 8-11</label><br>
+                    <input type="checkbox" id="sat" name="sat" class="xtratab">
+                    <label for="sat"> Saturdays 8-11</label><br><br>
+
+                    <input type="submit" value="Submit" class="go" onclick="return sendData()">
+                </form>
+
+                <div class="alerts"></div>
+                
+                <script>
+                    var rest = JSON.parse('{{rest}}'.replaceAll("&quot;", '"'))
+                    var delivery = JSON.parse('{{delivery}}')
+                    var pickup = JSON.parse('{{pickup}}')
+                    for (var i = 0; i < rest.length; i++)
+                    {
+                        $(`#${rest[i]}`).prop('checked', true)
+                    }
+                    if (pickup)
+                    {
+                        $(`#pickup`).prop('checked', true)
+                    }
+                    else
+                    {
+                        $(`#delivery`).prop('checked', true)
+                    }
+
+
+                    function sendData()
+                    {
+                        $(".alerts").empty()
+                        var updateUrl = '/receiving'
+                        $.ajax({
+                            method:'POST',
+                            url:updateUrl,
+                            headers: {'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()},
+                            data:getFormData($("#dataForm")),
+                            success:function(response) {
+                                if (response[0])
+                                {
+                                    window.location.href = response[1]
+                                }
+                                else
+                                {
+                                    $('.alerts').append(`<h3 class="danger">ALERT: ${response[1]}</h3>`)
+                                }
+                            }
+                        })
+                        return false
+                    }
+                </script>
+            {% else %}
+                <p>You haven't made any items requests yet! Please make a request <a href="/new-request">HERE</a> 
+                    before trying to set your preferred method of receiving items.</p>
+            {% endif %}
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+
