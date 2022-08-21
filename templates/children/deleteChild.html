@@ -6,8 +6,8 @@
 <div class="body">
 	<div class="home">
 		<div class="section">
-
-            <p>Are you sure you want to delete {{child}}? This cannot be undone!</p>
+			<h3>Remove Child From Your Account</h3>
+            <p>Confirm that {{child}} has left your care? {{child}}'s information will be removed from your account. This cannot be undone!</p>
 			{% for message in messages %}
 				{% if message.tags == "success" %}
 					<h3 style="background-color:rgb(162, 255, 68)">ALERT: {{message}}</h3>

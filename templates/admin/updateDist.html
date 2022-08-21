@@ -14,7 +14,7 @@
             
             <div class="newDiv alerts"></div>
 
-			<h2>Add an entry to the distribution log</h2>
+			<h2>Update a distribution log entry</h2>
             {% for message in messages %}
                 {% if message.tags == "success" %}
                     <h3 style="background-color:rgb(162, 255, 68)">ALERT: {{message}}</h3>
@@ -70,9 +70,20 @@
                   $("#id_dateDistributed").datepicker({
                     format: 'mm/dd/yyyy',
                   })
-                  $(`#userSelect`).select2()
                   childUpdate()
+                  $("#userSelect").val("{{test.forChild.parent.id}}").change()
+                  $("#childSelect").val("{{test.forChild.id}}").change()
+                  $(`#userSelect`).select2()
                   $(`#childSelect`).select2()
+                  if ("{{test.sent}}" == "True")
+                  {
+                    $("#sent").prop("checked", true)
+                  }
+                  var formd = JSON.parse("{{test.formData}}".replaceAll("&quot;", '"'))
+                  for (var i of Object.keys(formd))
+                  {
+                    $(`#${i}`).prop("checked", true)
+                  }
                 })
 
                 function childUpdate()
@@ -117,7 +128,7 @@
                     })
                     var vals = indexed_array
                     
-                    var updateUrl = '/add-dist-entry'
+                    var updateUrl = '/update-dist/{{pk}}'
                     $.ajax({
                         method:'POST',
                         url:updateUrl,

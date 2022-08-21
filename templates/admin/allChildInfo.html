@@ -95,7 +95,7 @@
                     }
                     rows = $('#tests-table').children('tr')
                     
-                    $('#totCount').text(`${tests.length} children in total`)
+                    $('#totCount').text(`${tests.length} children exist on the sytem`)
                     $('#matchCount').text(`${tests.length} children match the current search filters`)
                 }
             })
@@ -104,21 +104,19 @@
             var resLen = 0
             function addRow(obj){
                 resLen = obj.result.length
-	        
-	        var row = `<tr scope="row" class="test-row-${obj.id}">`
-	        for (var i = 0; i < resLen; i++)
-	        {
-	            row += `<td id="result-${obj.id}-${i}" data-index="${i}" data-testid="${obj.id}" class="oneLineData">${obj.result[i]}</td>`
-	        }
+                var row = `<tr scope="row" class="test-row-${obj.id}">`
+                for (var i = 0; i < resLen; i++)
+                {
+                    row += `<td id="result-${obj.id}-${i}" data-index="${i}" data-testid="${obj.id}" class="oneLineData">${obj.result[i]}</td>`
+                }
 
-	        row += `<td class="oneLineData">`
-	        if (obj.edit)
-	        {
-	            row += `<a href='update-child/${obj.id}' target="_blank"><button class="normal">Edit...</button></a>`
-	        }
-	        row += `</td></tr>`
-	        $('#tests-table').append(row)
-	        
+                row += `<td class="oneLineData">`
+                if (obj.edit)
+                {
+                    row += `<a href='update-child/${obj.id}' target="_blank"><button class="normal">Edit...</button></a>`
+                }
+                row += `</td></tr>`
+                $('#tests-table').append(row)
                 
             }
             

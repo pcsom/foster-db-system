@@ -1,0 +1,576 @@
+{% extends 'nafcbase.html' %}
+{% load static %}
+{% block content %}
+
+<div class="body">
+	<div class="home">
+		<div class="section">
+
+            <style>
+                .field {
+                    display: flex;
+                    justify-content: space-between;
+                    padding: 4px 3px;
+                    margin: 6px 0px;
+                    outline: black solid 2px;
+                }
+                .collapsibleContainer {
+                    top: 0;
+                    left: 0;
+                    height: 100%;
+                    width: 100%;
+                }
+                .collapsibleContent {
+                    position: static;
+                }
+                .del {
+                    cursor:pointer;
+                    color: rgb(150, 22, 0);
+                    font-size: 18px;
+                }
+                .del2 {
+                    cursor:pointer;
+                    color: rgb(255, 79, 47);
+                    font-size: 18px;
+                }
+                .inColl {
+                    margin-bottom: 5px;
+                }
+
+                .modifContent {
+                    padding: 0px 6px;
+                }
+
+                .grpText {
+                    font-size: 17px;
+                }
+
+                .btnGroup {
+                    outline: rgb(207, 31, 0) solid 3px;
+                    display: inline-block;
+                    margin-left: 5px;
+                    padding: 0px 4px;
+                }
+
+                .table-dragable > tbody .grabable { cursor: grab; user-select: none }
+                .table-dragable > tbody > .grabbed {
+                    box-shadow: 0 0 10px 0 rgba(0,0,0,0.5);
+                    background-color: rgb(158, 252, 255);
+                }
+                .table-dragable > tbody > tr.grabbed:active {
+                    user-input: none;
+                }
+                .table-dragable > tbody > tr.grabbed:active * {
+                    user-input: none;
+                    cursor: grabbing !important;
+                }
+
+                .collapsibleContainer.grabbed > .collapsible {
+                    box-shadow: 0 0 10px 0 rgba(0,0,0,0.5);
+                    background-color: rgb(158, 252, 255);
+                }
+
+                .optionContainer {
+                    display: flex;
+                }
+                .popwrap {
+                    position: static;
+                    display: inline-block;
+                    width: 12px;
+                    height: 13px;
+                }
+
+                .activeCont {
+	                position: relative;
+                }
+
+
+            </style>
+
+            <h3>Edit Request Form</h3>
+            <p> 
+                Shown below are settings for the item request form. Groups and fields may be edited or dragged to reorder. 
+                Edits made here will be reflected on the request form shown to families. DELETIONS CANNOT BE UNDONE.
+            </p>
+            <p>
+                Using the "link" option: Suppose "formulaType" is entered under the link options for field "formula". Then if field 
+                "formula" is filled out in the form, "formulaType" will also be required. If "formula" is not filled out, then 
+                anything filled in "formulaType" will be ignored.
+            </p>
+            
+            {% for message in messages %}
+                {% if message.tags == "success" %}
+                    <h3 style="background-color:rgb(162, 255, 68)">ALERT: {{message}}</h3>
+                {% elif message.tags == "error" %}
+                    <h3 style="background-color:tomato">ALERT: {{message}}</h3>
+                {% else %}
+                    <h3 style="background-color:rgb(74, 255, 255)">ALERT: {{message}}</h3>
+                {% endif %}
+            {% endfor %}
+
+            <form id="reqForm" action="">
+                {% csrf_token %}
+                <div class="newDiv activeCont" id="activeCont">
+
+                </div>
+            </form>
+            <div class="newDiv alerts"></div>
+            <button id="addGrp" class="go">Add Group</button><br>
+            <button id="saver" class="go">Save</button>
+
+            <script>
+                var ctr = 0
+                var dic = JSON.parse('{{ settingsDic | safe }}')
+                var acont = $('#activeCont')
+                var mainstr = ""
+                var linkDic = JSON.parse('{{ linksDic | safe }}')
+                var databaseDisplay = JSON.parse('{{ databaseDisplay | safe }}')
+                for (var i of dic)
+                {
+                    
+                    mainstr += `
+                    <div class="newDiv collapsibleContainer fieldCont grabable">
+                        <button type="button" class="collapsible thin generalColl"><input type="text" value="${i[0]}" size="40" class="grpText" required></button>
+                        <div class="collapsibleContent modifContent">
+                            <table class="basicInfoThin table-dragable">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>Database Name:</th>
+                                        <th>Display Name:</th>
+                                        <th>Type:</th>
+                                        <th>Link:</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                    `
+
+                    for (var j of i[1])
+                    {
+
+
+                        mainstr += `
+                        <tr class="formField grabable">
+                            <td><strong class="del">X</strong></td>
+                            <td><input class="dbn" type="text" size="30" value="${j[0]}" required></td>
+                            <td><input class="dsp" type="text" size="55" value="${databaseDisplay[j[0]]}" required></td>`
+                            
+
+                        
+                        var cur = `
+                            <td>
+                                <select class="type">
+                                    <option value="boolean">Checkbox</option>
+                                    <option value="char">Short Ans</option>
+                                    <option value="textarea">Long Ans</option>
+                                    <option value="dropdown">Dropdown</option>
+                                </select>
+                        `
+                        cur = cur.replace(j[1] + `"`, j[1] + `" selected=""`)
+
+                        if(j[1] == "dropdown")
+                        {
+
+                            var addlist = ""
+                            for(var option of j[2])
+                            {
+                                addlist += `
+                                    <div class="newDiv optionContainer">
+                                        <div class="newDiv"><strong class="del2">X </strong></div><input type="text" class="optionName" value="${option}" required size="16">
+                                    </div>
+                                `
+                            }
+
+                            cur += `
+                            <div class="newDiv popwrap">
+                                <div class="newDiv popup2 typePop">
+                                    
+                                    <input type="image" onclick="return doWarn(${ctr})" src="{% static 'images/settings_2_4_2_75.png' %}" required><br>
+                                    <span class="popuptext2" id="myPopup${ctr}">
+                                        Dropdown options: <br>
+                                        <div class="newDiv" id="dropSelect${ctr}">
+                                            ${addlist}
+                                        </div>
+                                        <button type="button" onclick="addOption('#dropSelect${ctr}')" class="go addOp">Add</button>
+                                    </span>
+                                </div>
+                            </div>
+                            `
+                            ctr++
+                        }
+
+                        cur += `
+                            </td>
+                            <td>
+                        `
+                        var addlist = ""
+                        if(j[0] in linkDic)
+                        {
+                            for (var elem of Object.keys(linkDic[j[0]]))
+                            {
+                                addlist += `
+                                <div class="newDiv optionContainer">
+                                    <div class="newDiv"><strong class="del2">X </strong></div><input type="text" class="optionName" value="${elem}" required size="16">
+                                </div>
+                                `
+                            }
+                        }
+                        cur += `
+                        <div class="newDiv popwrap">
+                            <div class="newDiv popup2 linkPop">
+                                
+                                <input type="image" onclick="return doWarn(${ctr})" src="{% static 'images/settings_2_4_2_75.png' %}" required><br>
+                                <span class="popuptext2" id="myPopup${ctr}">
+                                    Linked fields: <br>
+                                    <div class="newDiv" id="dropSelect${ctr}">
+                                        ${addlist}
+                                    </div>
+                                    <button type="button" onclick="addOption('#dropSelect${ctr}')" class="go addOp">Add</button>
+                                </span>
+                            </div>
+                        </div>
+                        `
+                        ctr++
+                        
+                        cur += `</td></tr>`
+
+                        mainstr += cur
+                        
+                    }
+                    mainstr += `
+                                </tbody>
+                            </table>
+                            <button type="button" class="go inColl adder">Add field</button>
+                            <button type="button" class="danger inColl delGrp">Delete group</button>
+                        </div>
+                    </div>
+                    `
+                }
+                acont.append(mainstr)
+
+
+
+                function setDelEvent(toDel) {
+                    toDel.on('click', function(){
+                        $(this).parent().parent().remove()
+                    })
+                }
+                setDelEvent($(".del"))
+                setDelEvent($(`.del2`))     //del2 is for deletors in dropdown option popups
+
+
+                function setTypeEvent(selector) {
+                    selector.change(function() {
+                        if ($(this).find(":selected").val() == "dropdown")
+                        {
+                            var toAdd = 
+                            `
+                                <div class="newDiv popwrap">
+                                    <div class="newDiv popup2 typePop">
+                                        
+                                        <input type="image" onclick="return doWarn(${ctr})" src="{% static 'images/settings_2_4_2_75.png' %}" required><br>
+                                        <span class="popuptext2" id="myPopup${ctr}">
+                                            Dropdown options: <br>
+                                            <div class="newDiv" id="dropSelect${ctr}">
+
+                                            </div>
+                                            <button type="button" onclick="addOption('#dropSelect${ctr}')" class="go addOp">Add</button>
+                                        </span>
+                                    </div>
+                                </div>
+                            `
+                            ctr++
+                            $(this).parent().append(toAdd)
+                        }
+                        else
+                        {
+                            $(this).parent().find(".popwrap").remove()
+                        }
+                    })
+                }
+
+                setTypeEvent($(".type"))
+
+                function addOption(id)
+                {
+                    $(id).append(`
+                    <div class="newDiv optionContainer">
+                        <div class="newDiv"><strong class="del2" id="del${ctr}">X </strong></div><input class="optionName" type="text" required size="16">
+                    </div>
+                    `)
+                    setDelEvent($(`#del${ctr}`))
+                    ctr++
+                }
+
+                function doWarn(ctrId)
+				{
+                    var popElem = $(`#myPopup${ctrId}`)
+                    popElem.toggleClass("showPop")
+					//document.getElementById(`myPopup${ctrId}`).classList.toggle("showPop")
+                    var par = popElem.parents(".collapsibleContent")
+                    par.css("maxHeight", par.prop("scrollHeight") + "px")
+
+                    return false
+				}
+
+                function dropSetHide(btn)
+                {
+                    btn.on('click', function(e)
+                    {
+                        if ($(e.target).is("input") || $(this).data('stopColl'))
+                        {
+                            return false
+                        }
+                        var content = $(this).next()
+                        if (content.css("maxHeight") != "0px") {
+                            content.find(".popup2").css("display", "none")
+                        }
+                        else {
+                            content.find(".popup2").css("display", "inline-block")
+                        }
+                    })
+                }
+
+                dropSetHide($(".collapsible"))
+                $(".popup2").css("display", "none")
+                
+
+                function setAddEvent(toSet) {
+                    toSet.on('click', function()
+                    {
+                        var addStr = `
+                        <tr class="formField grabable" id="grab${ctr}">
+                            <td><strong class="del" id="del${ctr}">X</strong></td>
+                            <td><input class="dbn" size="30" type="text" required></td>
+                            <td><input class="dsp" type="text" size="55" required></td>
+                            <td>
+                                <select class="type" id="type${ctr}">
+                                    <option value="boolean">Checkbox</option>
+                                    <option value="char">Short Ans</option>
+                                    <option value="textarea">Long Ans</option>
+                                    <option value="dropdown">Dropdown</option>
+                                </select>
+                            </td>
+                            <td>
+                                <div class="newDiv popwrap">
+                                    <div class="newDiv popup2 linkPop">
+                                        
+                                        <input type="image" onclick="return doWarn(${ctr})" src="{% static 'images/settings_2_4_2_75.png' %}" required><br>
+                                        <span class="popuptext2" id="myPopup${ctr}">
+                                            Linked fields: <br>
+                                            <div class="newDiv" id="dropSelect${ctr}">
+                                                ${addlist}
+                                            </div>
+                                            <button type="button" onclick="addOption('#dropSelect${ctr}')" class="go addOp">Add</button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        `
+
+
+
+                        var par = $(this).parent()
+                        $(this).prev().children('tbody').append(addStr)
+                        setDelEvent($(`#del${ctr}`))
+                        par.css("maxHeight", par.prop("scrollHeight") + "px")
+                        dragInit($(`#grab${ctr}`), 'tr', false)
+                        setTypeEvent($(`#type${ctr}`))
+                        ctr++
+                    })
+                }
+                setAddEvent($(".adder"))
+
+
+                var saveDic = function ()
+                {
+                    $(".alerts").empty()
+                    var newDic = []
+                    var getLinks = {}
+                    var dbnToDsp = {}
+                    $('.fieldCont').each(function(ind)
+                    {
+                        var grp = $(this).find(">button>input").val()
+                        var forgrp = []
+                        $(this).find(".formField").each(function(indIn) {
+                            //database name, display name, type
+                            var fieldType = $(this).find(".type").find(":selected").val()
+                            var dbn = $(this).find(".dbn").val()
+                            var dsp = $(this).find(".dsp").val()
+                            var curList = [dbn, dsp, fieldType]
+                            if (fieldType == "dropdown")
+                            {
+                                var dropOps = []
+                                $(this).find(".typePop .optionName").each(function(){
+                                    dropOps.push($(this).val())
+                                })
+                                curList.push(dropOps)
+                            }
+                            var curLinks = {}
+                            $(this).find(".linkPop .optionName").each(function(){
+                                console.log($(this).val())
+                                curLinks[$(this).val()] = true
+                            })
+                            if(Object.keys(curLinks).length > 0)
+                            {
+                                getLinks[dbn] = curLinks
+                            }
+
+                            forgrp.push(curList)
+                            
+                        })
+                        newDic.push([grp, forgrp])
+                    })
+                    //console.log(newDic)
+                    var updateUrl = '/edit-request-form'
+                    console.log(JSON.stringify(getLinks))
+                    $.ajax({
+                        method:'POST',
+                        url:updateUrl,
+                        headers: {'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()},
+                        data:{'list':JSON.stringify(newDic), 'curLinks':JSON.stringify(getLinks)},
+                        success:function(response) {
+                            if(response[0])
+                            {
+                                window.location.href = response[1]
+                            }
+                            else
+                            {
+                                for (var message of response[1])
+                                {
+                                    $('.alerts').append(`<h3 class="danger">ALERT: ${message}</h3>`)
+                                }
+                            }
+                        }
+                    })
+                }
+                $("#saver").on("click", saveDic)
+
+
+                function setDelGrpEvent(elem)
+                {
+                    console.log("in1")
+                    elem.on("click", function()
+                    {
+                        console.log("in2")
+                        var origClick = $(this)
+                        //$(this).parent().parent().remove()
+                        $(this).replaceWith(`
+                            <div class="newDiv btnGroup">
+                                <strong>Deleting the ENTIRE group. Confirm? </strong>
+                                <button type="button" class="danger" id="confGrpDel${ctr}">Confirm</button>
+                                <button type="button" class="go" id="cancelGrpDel${ctr}">Cancel</button>
+                            </div>
+                        `)
+                        $(`#confGrpDel${ctr}`).on('click', function() {
+                            $(this).parent().parent().parent().remove()
+                        })
+                        $(`#cancelGrpDel${ctr}`).on('click', function() {
+                            $(this).parent().replaceWith(`<button type="button" class="danger inColl delGrp" id="delGrp${ctr}">Delete group</button>`)
+                            setDelGrpEvent($(`#delGrp${ctr}`))
+                        })
+                        ctr++
+                    })
+                }
+                setDelGrpEvent($('.delGrp'))
+
+
+                $("#addGrp").on("click", function()
+                {
+                    var curstr = `
+                    <div class="newDiv collapsibleContainer fieldCont grabable" id="cont${ctr}">
+                        <button type="button" class="collapsible thin generalColl" id="addedColl${ctr}"><input type="text" size="40" class="grpText" id="grpText${ctr}" required></button>
+                        <div class="collapsibleContent modifContent" id="content${ctr}">
+                            <table class="basicInfoThin table-dragable">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>Database Name:</th>
+                                        <th>Display Name:</th>
+                                        <th>Type:</th>
+                                        <th>Link:</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                            <button type="button" class="go inColl adder" id="adder${ctr}">Add field</button>
+                            <button type="button" class="danger inColl delGrp" id="delGrp${ctr}">Delete group</button>
+                        </div>
+                    </div>
+                    `
+                    acont.append(curstr)
+                    setCollSpecific($(`#addedColl${ctr}`))
+                    dropSetHide($(`#addedColl${ctr}`))
+                    setAddEvent($(`#adder${ctr}`))
+                    setDelGrpEvent($(`#delGrp${ctr}`))
+                    dragInit($('button.collapsible'), `#cont${ctr}`, true)
+                    prevCollInit($(`#grpText${ctr}`))
+
+                    ctr++
+                })
+
+
+                function dragInit(setToDrag, kind, isColl) {
+                    setToDrag.mousedown(function (e) {
+                        //console.log($(e.target))
+                        //console.log($(e.target).is('.collapsible.active'))
+                        dragger = $(this)
+                        var tr = $(e.target).closest(kind), sy = e.pageY, drag
+                        if ($(e.target).is('input, select, .del, .collapsible.active, .popuptext2, .del2, .addOp'))
+                            return
+                        if ($(e.target).is(kind)) 
+                            tr = $(e.target)
+                        var index = tr.index()
+                        $(tr).addClass('grabbed')
+                        function move (e) {
+                            if (!drag && Math.abs(e.pageY - sy) < 10) 
+                                return
+                            drag = true
+                            tr.siblings().each(function() {
+                                var s = $(this), i = s.index(), y = s.offset().top
+                                if (e.pageY >= y && e.pageY < y + s.outerHeight()) {
+                                    //happens when the item is still grabbed but has moved slots
+                                    if (isColl) {
+                                        dragger.data('stopColl', true)
+                                        console.log(dragger.data('stopColl'))
+                                    }
+                                    if (i < tr.index()) 
+                                        s.insertAfter(tr)
+                                    else 
+                                        s.insertBefore(tr)
+                                    return false
+                                }
+                            })
+                        }
+                        function up (e) {
+                            if (drag && index != tr.index()) {
+                                drag = false
+                            }
+                            $(document).unbind('mousemove', move).unbind('mouseup', up)
+                            $(tr).removeClass('grabbed')
+                        }
+                        $(document).mousemove(move).mouseup(up)
+                    })
+                }
+
+                dragInit($('.table-dragable tbody .grabable'), 'tr', false)
+                dragInit($('button.collapsible'), 'div.fieldCont.grabable', true)
+
+                function prevCollInit(elem)
+                {
+                    elem.mousedown(function() {
+                        elem.parent().data('stopColl', true)
+                    })
+                }
+                prevCollInit($('.collapsible > .grpText'))
+
+                
+
+            </script>
+
+		</div>
+	</div>
+</div>
+
+{% endblock %}

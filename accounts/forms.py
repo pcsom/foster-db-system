@@ -32,17 +32,19 @@ class childForm(ModelForm):
     )
     class Meta:
         model = child
-        fields = ('firstName', 'gender', 'careType', 'newPlacement', 'dateOfBirth', 'clothesSize', 'shoeSize', 'specials', 'favorites', 'hasAllergy', 'allergyDescription')
+        fields = ('firstName', 'gender', 'clothingGender', 'careType', 'newPlacement', 'relationship', 'dateOfBirth', 'clothesSize', 'shoeSize', 'specials', 'favorites', 'hasAllergy', 'allergyDescription')
     def __init__(self, *args, **kwargs):
         super(childForm, self).__init__(*args, **kwargs)
         self.fields['firstName'].label = "First Name: *"
         self.fields['gender'].label = "Gender: *"
-        self.fields['careType'].label = "Type (pick one): *"
-        self.fields['newPlacement'].label = "Is this child new to your home (new placement)? : *"
+        self.fields['clothingGender'].label = "Which gender is preferred for clothes, shoes, etc.? *"
+        self.fields['careType'].label = "Care type (pick one): *"
+        self.fields['newPlacement'].label = "Is this child new to your home (new placement)? *"
+        self.fields['relationship'].label = "Your relationship to this child: *"
         self.fields['dateOfBirth'].label = "Date of Birth (MM/DD/YYYY): *"
         #self.fields['dateOfBirth'].input_formats = ['%m/%d/%Y',]
         self.fields['clothesSize'].label = "Clothing Size: *"
-        self.fields['shoeSize'].label = "Shoe Size: *"
+        self.fields['shoeSize'].label = "Shoe Size (provide scale (children/men/women) and number): *"
         self.fields['specials'].label = "Special needs/considerations:"
         self.fields['favorites'].label = "Favorite types of items/characters (i.e. Frozen, Paw Patrol):"
         self.fields['hasAllergy'].label = "Does this child have any material allergies (i.e. needs 100% cotton, certain brand of diapers)?"

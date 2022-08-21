@@ -53,6 +53,7 @@ button {
 	position: fixed;
 	width: 100%;
 	transition: 0.2s;
+	z-index:2;
 }
 .header div {
 	margin: 0 auto;
@@ -166,41 +167,6 @@ button {
 	padding:0 10px;
 	width:940px;
 }
-.body .home .section div:first-child {
-	float:left;
-}
-.body .home .section div:first-child div ul li a {
-	display:block;
-	margin:0 0 9px;
-}
-.body .home .section div:first-child div ul li h4 a {
-	color:#404040;
-	float:none;
-	font-family:inherit;
-	font-size:14px;
-	font-weight:400;
-	line-height:24px;
-	margin:0;
-	text-decoration:none;
-	text-transform:uppercase;
-}
-.body .home .section div:first-child div ul li p {
-	color:#838383;
-	font-family:inherit;
-	font-size:14px;
-	line-height:24px;
-	margin:0;
-}
-.body .home .section div:first-child div ul li p a {
-	display:inline;
-	float:none;
-	margin:0;
-}
-.body .home .section div div:first-child a img {
-	border:1px solid #d5d5d5;
-	display:block;
-	margin:0 0 9px;
-}
 .body .home .section div div ul {
 	list-style:none;
 	margin:0;
@@ -221,46 +187,6 @@ button {
 	text-decoration:none;
 	text-transform:uppercase;
 }
-.body .home .section div:first-child div h3, .body .home .section div div h3 {
-	display:block;
-	margin:0 0 14px;
-}
-.body .home .section div:first-child div h3 a, .body .home .section div div h3 a {
-	color:#404040;
-	font-family:rokkittbold;
-	font-size:20px;
-	font-weight:400;
-	line-height:24px;
-	text-decoration:none;
-	text-transform:uppercase;
-}
-.body .home .section div:first-child div ul, .body .about ul, .body .blog div.sidebar div ul, .body .blog-single div.sidebar div ul {
-	list-style:none;
-	margin:0;
-	overflow:hidden;
-	padding:0;
-}
-.body .home .section div:first-child div ul li:first-child, .body .home .section div:first-child div ul li h4, .body .about ul li:first-child, .body .gallery ul li:first-child, .body .donate div ul li:first-child {
-	margin:0;
-}
-.body .home .section div:first-child div ul li a img, .body .home .section div div ul li a img, .body .programs div img, .body .blog div ul li a img, .body .blog-single div.sidebar div.section ul li a img {
-	border:1px solid #D5D5D5;
-}
-.body .home .section div:first-child div ul li a img:hover, .body .home .section div div:first-child a img:hover, .body .home .section div div ul li a img:hover, .body .programs ul li a img:hover, .body .gallery ul li a img:hover, .body .blog div ul li a img:hover, .body .blog-single div.sidebar div.section ul li a img:hover {
-	filter:alpha(opacity=80);/* Needed for IE8 and old versions */
-	opacity:0.8;
-}
-.body .home .section div div:first-child p, .body .blog div ul li p, .body .blog-single div p {
-	color:#838383;
-	font-size:14px;
-	line-height:24px;
-	margin:0;
-}
-.body .home .section div div ul li:first-child, .body .programs div.sidebar div:first-child, .body .blog div.sidebar div:first-child, .body .blog-single div.sidebar div:first-child {
-	border-top:0;
-	padding-top:0;
-}
-
 /*------------------------- Footer -------------------------*/
 .footer {
 	background:url(../images/bg-footer.jpg) repeat-x left top;
@@ -485,10 +411,15 @@ textarea {
 
 /*------FORMATTING FOR INFORMATION TABLES------*/
 
-.basicInfo {
+.basicInfo, .basicInfoThin {
 	font-family: Arial, Helvetica, sans-serif;
 	border-collapse: collapse;
 	width: 100%;
+}
+
+.basicInfoThin {
+	margin-top: 5px;
+	margin-bottom: 5px;
 }
 
 .tableNums {
@@ -499,13 +430,18 @@ textarea {
 	border: 1px solid #ddd;
 	padding: 8px;
 }
-  
-.basicInfo tr:nth-child(even){
-	background-color: #f2f2f2;
+
+.basicInfoThin td, .basicInfoThin th {
+	border: 1px solid rgb(185, 185, 185);
+	padding: 2px 4px;
 }
   
-.basicInfo tr:hover {
-	background-color: #ddd;
+.basicInfo tr:nth-child(even), .basicInfoThin tr:nth-child(even){
+	background-color: #f6f6f6;
+}
+  
+.basicInfo tr:hover, .basicInfoThin tr:hover {
+	background-color: rgb(240, 240, 240);
 }
   
 .basicInfo th {
@@ -514,6 +450,13 @@ textarea {
 	text-align: left;
 	background-color: #5CAF50;
 	color: white;
+}
+
+.basicInfoThin th {
+	padding: 4px 4px;
+	text-align: left;
+	background-color: #e1e1e1;
+	color: rgb(64, 64, 64);
 }
 
 .tableNums tr {
@@ -567,7 +510,7 @@ div.collapsibleContainer.manyList {
 	padding: 0 18px;
 	max-height: 0;
 	overflow: hidden;
-	transition: 0.2s ease-out;
+	transition: 0.1s ease-out;
 	background-color: #fafafa;
 	float:none;
 	margin: 0px 0px 0px 0px;
@@ -735,7 +678,11 @@ p.slim {
 
 
 .popup {
+	display: inline-block;
 	position: relative;
+}
+.popup2 {
+	position: absolute;
 	display: inline-block;
 }
 
@@ -754,6 +701,20 @@ p.slim {
 	left: 50%;
 	margin-left: -80px;
 }
+.popup2 .popuptext2 {
+	visibility: hidden;
+	width: 160px;
+	background-color: rgb(63, 63, 63);
+	color: #fff;
+	text-align: center;
+	border-radius: 6px;
+	padding: 10px 10px;
+	position: absolute;
+	z-index: 1;
+	top: 125%;
+	right: -40%;
+	margin-left: -80px;
+}
 
 /* Popup arrow */
 .popup .popuptext::before {
@@ -766,9 +727,20 @@ p.slim {
 	border-style: solid;
 	border-color: transparent transparent rgb(63, 63, 63) transparent;
 }
+/* Popup arrow */
+.popup2 .popuptext2::before {
+	content: "";
+	position: absolute;
+	bottom: 100%;
+	right: 3.8%;
+	margin-left: -5px;
+	border-width: 7px;
+	border-style: solid;
+	border-color: transparent transparent rgb(63, 63, 63) transparent;
+}
 
 /* Toggle this class - hide and show the popup */
-.popup .showPop {
+.popup .showPop, .popup2 .showPop {
 	visibility: visible;
 	-webkit-animation: fadeIn 0.2s;
 	animation: fadeIn 0.2s;

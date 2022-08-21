@@ -30,7 +30,16 @@ function sortTable(n)
         {
             xData = x.text()
         }
-        dataArr.push([xData.toLowerCase(), i])
+        //dataArr.push([xData.toLowerCase(), i])
+        if (!isNaN(xData) && !isNaN(parseFloat(xData)))
+        {
+            xData = Number(xData)
+            dataArr.push([xData, i])
+        }
+        else
+        {
+            dataArr.push([xData.toLowerCase(), i])
+        }
     }
 
     mergeSort(dataArr, 0, dataArr.length-1, n.toString())
@@ -209,109 +218,3 @@ function makeChange()
     
     $('#matchCount').text(`${validRows.length} ${plural} match the current search filters`)
 }
-
-
-
-// function sortTable(n) {
-//     var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-//     switching = true;
-//     table = document.getElementById("myTable");
-
-//     //Set the sorting direction to ascending:
-//     dir = "asc"; 
-
-//     /*Make a loop that will continue until
-//     no switching has been done:*/
-//     while (switching) {
-
-//         //start by saying: no switching is done:
-//         switching = false;
-//         rows = table.rows;
-        
-//         /*Loop through all table rows (except the
-//         first, which contains table headers):*/
-//         for (i = 1; i < (rows.length - 1); i++) {
-            
-//             //start by saying there should be no switching:
-//             shouldSwitch = false;
-            
-//             /*Get the two elements you want to compare,
-//             one from current row and one from the next:*/
-//             x = rows[i].getElementsByTagName("TD")[n];
-            
-//             y = rows[i + 1].getElementsByTagName("TD")[n];
-            
-//             /*check if the two rows should switch place,
-//             based on the direction, asc or desc:*/
-//             var xData, yData
-//             if (String(x.innerHTML)[0] == '<')
-//             {
-//                 if (String(x.innerHTML).slice(0,4) == '<sel')
-//                 {
-//                     console.log('inner x')
-//                     xData = document.querySelectorAll(`#${x.children[0].id} > [selected]`)[0].innerHTML
-//                 }
-//                 else
-//                 {
-//                     xData = x.children[0].value
-//                 }
-//             }
-//             else
-//             {
-//                 xData = x.innerHTML
-//             }
-//             if (String(y.innerHTML)[0] == '<')
-//             {
-//                 if (String(y.innerHTML).slice(0,4) == '<sel')
-//                 {
-//                     console.log('inner y')
-//                     console.log(document.querySelectorAll(`#${y.children[0].id} > [selected]`))
-//                     yData = document.querySelectorAll(`#${y.children[0].id} > [selected]`)[0].innerHTML
-//                 }
-//                 else
-//                 {
-//                     yData = y.children[0].value
-//                 }
-//             }
-//             else
-//             {
-//                 yData = y.innerHTML
-//             }
-
-//             console.log(xData)
-//             console.log(yData)
-
-
-//             if (dir == "asc") {
-//                 if (xData.toLowerCase() > yData.toLowerCase()) {
-//                     //if so, mark as a switch and break the loop:
-//                     shouldSwitch= true;
-//                     break;
-//                 }
-//             } else if (dir == "desc") {
-//                 if (xData.toLowerCase() < yData.toLowerCase()) {
-//                     //if so, mark as a switch and break the loop:
-//                     shouldSwitch = true;
-//                     break;
-//                 }
-//             }
-//         }
-
-//         if (shouldSwitch) {
-//             /*If a switch has been marked, make the switch
-//             and mark that a switch has been done:*/
-//             rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-//             switching = true;
-            
-//             //Each time a switch is done, increase this count by 1:
-//             switchcount ++;      
-//         } else {
-//             /*If no switching has been done AND the direction is "asc",
-//             set the direction to "desc" and run the while loop again.*/
-//             if (switchcount == 0 && dir == "asc") {
-//                 dir = "desc";
-//                 switching = true;
-//             }
-//         }
-//     }
-// }

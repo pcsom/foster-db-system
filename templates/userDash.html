@@ -25,7 +25,6 @@
 			<br>
 
 
-
 			{% if admin == "True" %}
 				<h2>Admin Functions</h2>
 				
@@ -35,13 +34,20 @@
 						<p>> <a href="/view-all-requests/11">View/manage items requests</a></p>
 						<p>> <a href="/notify-requests">Notify a family about their request(s)</a></p>
 						<p>> <a href="/request-track-info">See information about the request tracking system</a></p>
+						<p>> <a href="/edit-request-form">Edit the items request form</a></p>
+					</div>
+				</div>
+
+				<div class="newDiv collapsibleContainer">
+					<button type="button" class="collapsible"><strong> System Settings</strong></button>
+					<div class="collapsibleContent">
+						<p>> <a href="auth-account">Manage system email account</a></p>
 					</div>
 				</div>
 
 				<div class="newDiv collapsibleContainer">
 					<button type="button" class="collapsible"><strong> Logs</strong></button>
 					<div class="collapsibleContent">
-						<br>
 						<h3>Distribution Log</h3>
 						<p>> <a href="/view-dist-log">View the distribution log</a></p>
 						<p>> <a href="/add-dist-entry">Add a distribution entry</a></p><br>
@@ -60,6 +66,7 @@
 				<div class="newDiv collapsibleContainer">
 					<button type="button" class="collapsible"><strong> Family Data Management</strong></button>
 					<div class="collapsibleContent">
+						<p>> <a href="create-user">Create new user</a></p>
 						<p>> <a href="all-family-info">View all family data</a></p>
 						<p>> <a href="all-child-info">View all children data</a></p>
 					</div>
@@ -82,49 +89,56 @@
 			<div class="newDiv collapsibleContainer">
 				<button type="button" class="collapsible"><strong> Your Information</strong></button>
 				<div class="collapsibleContent">
-					<br><h3>Account Details</h3>
+					<h3>Account Details</h3>
 					<strong style="color:rgb(91, 165, 85)">Username:</strong> {{curUser.username}}<br>
 					> <a href="{% url 'change-username' curUser.id %}">Change Username</a> <strong style="color:rgb(255, 255, 255)">......</strong> > <a href="password-change">Change Password</a><br><br><br>
 
 
 					<h3>Type of Care</h3>
-					Your family is...
-					<table class="basicInfo">
-						<tr>
-							<th>Adoptive?</th>
-							<th>Foster?</th>
-							<th>Kinship?</th>
-							<th>Safety Plan?</th>
-						</tr>
+					{% if currentCareType != None %}
+						Your family is...
+						<table class="basicInfo">
+							<tr>
+								<th>Adoptive?</th>
+								<th>Foster?</th>
+								<th>Kinship?</th>
+								<th>Safety Plan?</th>
+							</tr>
 
-						<tr>
-							{% if currentCareType.adoptive %}
-								<td>Yes</td>
-							{% else %}
-								<td>No</td>
-							{% endif %}
-							
-							{% if currentCareType.foster %}
-								<td>Yes</td>
-							{% else %}
-								<td>No</td>
-							{% endif %}
-							
-							{% if currentCareType.kinship %}
-								<td>Yes</td>
-							{% else %}
-								<td>No</td>
-							{% endif %}
-							
-							{% if currentCareType.safety %}
-								<td>Yes</td>
-							{% else %}
-								<td>No</td>
-							{% endif %}
-							
-						</tr>
-					</table>
-					<p>> <a href="{% url 'type-of-care' curUser.id %}">Change or view more of your care type info</a></p><br>
+							<tr>
+								{% if currentCareType.adoptive %}
+									<td>Yes</td>
+								{% else %}
+									<td>No</td>
+								{% endif %}
+								
+								{% if currentCareType.foster %}
+									<td>Yes</td>
+								{% else %}
+									<td>No</td>
+								{% endif %}
+								
+								{% if currentCareType.kinship %}
+									<td>Yes</td>
+								{% else %}
+									<td>No</td>
+								{% endif %}
+								
+								{% if currentCareType.safety %}
+									<td>Yes</td>
+								{% else %}
+									<td>No</td>
+								{% endif %}
+								
+							</tr>
+						</table>
+						<p>> <a href="{% url 'type-of-care' curUser.id %}">Change or view more of your care type info</a></p><br>
+					{% else %}
+						<p>
+							You have not finished your care type selection yet.<br>
+							> <a href="{% url 'type-of-care' curUser.id %}">Enter your care type information</a>
+						</p><br>
+					{% endif %}
 
 					<h3>Basic Information</h3>
 					<table class="basicInfo">
@@ -194,9 +208,10 @@
                                 <th>Clothes Size</th>
                                 <th>Shoe Size</th>
                                 <th>New Placement?</th>
+                                <th>Relationship</th>
                                 <th>Allergies</th>
 								<th>Update Info</th>
-								<th>Delete Child</th>
+								<th>Remove</th>
 							</tr>
 			
 							{% for child in children %}
@@ -207,9 +222,10 @@
                                     <td>{{child.clothesSize}}</td>
                                     <td>{{child.shoeSize}}</td>
                                     <td>{{child.newPlacement}}</td>
+                                    <td>{{child.relationship}}</td>
                                     <td>{{child.allergyDescription}}</td>
 									<td><a href="{% url 'update-child' child.id %}">Update</a></td>
-									<td><a href="{% url 'delete-child' child.id %}">Delete</a></td>
+									<td><a href="{% url 'delete-child' child.id %}">This child has left my care</a></td>
 								</tr>
 							{% endfor %}
 						</table>

@@ -13,7 +13,8 @@
         <h3>View All Volunteers' Info</h3>
         <p style="max-width: 970px;">Click on any green header in the table below to sort the data based on the values in the corresponding column.
             Clicking a header repeatedly will alternate between an ascending and descending sort. <br>
-            Please refresh this page to reflect any changes made to the data shown in the table.
+            Please refresh this page to reflect any changes made to the data shown in the table.<br>
+            To edit a volunteer's "Total Hours Worked" field, please add new or edit existing volunteer hour logs.
         </p>
 
         {% for message in messages %}
@@ -122,7 +123,7 @@
                     }
                     rows = $('#tests-table').children('tr')
                     
-                    $('#totCount').text(`${tests.length-1} volunteers in total (excluding the Global count)`)
+                    $('#totCount').text(`${tests.length-1} volunteers exist on the sytem (excluding the Global count)`)
                     $('#matchCount').text(`${tests.length-1} volunteers match the current search filters (excluding the Global count)`)
                 }
             })

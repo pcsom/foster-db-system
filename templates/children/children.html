@@ -8,6 +8,9 @@
 		<div class="section">
             <script src="{% static 'js/datepicker.js' %}"></script>
             <link rel="stylesheet" href="{% static 'css/datepicker.css' %}" />
+            
+            <link rel="stylesheet" href="{% static 'css/select2.css' %}" />
+            <script src="{% static 'js/select2.js' %}"></script>
 
 			
             {% if saving == "add" %}
@@ -87,6 +90,8 @@
                 $("#id_dateOfBirth").datepicker({
                     format: 'mm/dd/yyyy',
                 })
+
+                $("#id_clothesSize").select2()
 
                 function sendData(e) {
                     

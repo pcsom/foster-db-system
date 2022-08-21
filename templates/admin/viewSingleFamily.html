@@ -38,12 +38,12 @@
 					<form method="POST" action="/view-family/{{curUser.id}}">
 						{% csrf_token %}
 						<div class="newDiv popup">
-							<button type="button" onclick="doWarn()" name="confirm" class="danger">Revoke admin status</button><br>
-							<span class="popuptext" id="myPopup">
+							<button type="button" onclick="doWarn(1)" name="confirm" class="danger">Revoke admin status</button><br>
+							<span class="popuptext" id="myPopup1">
 								WARNING - By continuing, all of this user's admin permissions will be revoked and they will lose admin status.
 								<br>You can re-grant these admin permissions anytime.<br><br>
 								<input type="submit" name="confirm" class="danger" value="Confirm">
-								<button type="button" class="normal" onclick="doWarn()">Cancel</button>
+								<button type="button" class="normal" onclick="doWarn(1)">Cancel</button>
 							</span>
 						</div>
 					</form>
@@ -52,13 +52,13 @@
 					<form method="POST" action="/view-family/{{curUser.id}}">
 						{% csrf_token %}
 						<div class="newDiv popup">
-							<button type="button" onclick="doWarn()" name="confirm" class="danger">Make this user an admin</button><br>
-							<span class="popuptext" id="myPopup">
+							<button type="button" onclick="doWarn(1)" name="confirm" class="danger">Make this user an admin</button><br>
+							<span class="popuptext" id="myPopup1">
 								WARNING - By continuing, this user will gain all admin permissions. Accounts with such permissions have the ability to make destructive changes to the system. 
 								ONLY CONTINUE IF YOU COMPLETELY TRUST THIS USER WITH THE INTEGRITY OF THIS SYSTEM.
 								<br>You can revoke these admin permissions anytime.<br><br>
 								<input type="submit" name="confirm" class="danger" value="Confirm">
-								<button type="button" class="normal" onclick="doWarn()">Cancel</button>
+								<button type="button" class="normal" onclick="doWarn(1)">Cancel</button>
 							</span>
 						</div>
 					</form>
@@ -106,6 +106,40 @@
 					</table>
 				{% endif %}				
 				<p>> <a href="{% url 'type-of-care' curUser.id %}">Change or view more of this care type info</a></p><br>
+				
+				
+				{% if regProg %}
+					This user has fully finished registration and can access the full site.<br>
+					<form method="POST" action="/change-reg-prog/{{curUser.id}}">
+						{% csrf_token %}
+						<div class="newDiv popup">
+							<button type="button" onclick="doWarn(2)" name="confirm" class="danger">Require user to re-sign Statement of Truthfulness</button><br>
+							<span class="popuptext" id="myPopup2">
+								WARNING - By continuing, this user will be required to (re)verify care type information and (re)sign Statement of Truthfulness
+								<br>However, you can allow the user to bypass this stage anytime.<br><br>
+								<input type="submit" name="confirm" class="danger" value="Confirm">
+								<button type="button" class="normal" onclick="doWarn(2)">Cancel</button>
+							</span>
+						</div>
+					</form>
+				{% else %}
+					This user is currently restricted from using the site until they verify their care type information and sign the Statement of Truthfulness.<br>
+					<form method="POST" action="/change-reg-prog/{{curUser.id}}">
+						{% csrf_token %}
+						<div class="newDiv popup">
+							<button type="button" onclick="doWarn(2)" name="confirm" class="danger">Allow user to bypass this stage</button><br>
+							<span class="popuptext" id="myPopup2">
+								WARNING - By continuing, this user will be allowed to bypass care type selection and Statement of Truthfulness.
+								<br>However, you can revert this bypass and bring the user back to the Statement of Truthfulness stage anytime.<br><br>
+								<input type="submit" name="confirm" class="danger" value="Confirm">
+								<button type="button" class="normal" onclick="doWarn(2)">Cancel</button>
+							</span>
+						</div>
+					</form>
+				{% endif %}
+				
+				
+				<br><br>
 
 				<h3>Basic Information</h3>
 				<table class="basicInfo">
@@ -222,7 +256,7 @@
 
 				function doWarn(adm)
 				{
-					document.getElementById("myPopup").classList.toggle("showPop")
+					document.getElementById(`myPopup${adm}`).classList.toggle("showPop")
 				}
 			</script>
 		</div>

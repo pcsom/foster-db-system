@@ -1,6 +1,6 @@
 
 from typing import final
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import post_save, pre_save, pre_delete
 from django.dispatch import receiver
 from utility import processName, getFieldsOfType, getVals
 from django.core.exceptions import ValidationError
@@ -39,7 +39,7 @@ def correctFieldsAdmin(sender, instance, **kwargs):
 
     if sender == distributionEntry:
         finalDict = {
-            'result': getVals(instance, formatDate=['dateDistributed',], exclude=['id',], objField={'forFamily': '__str__()'}),
+            'result': getVals(instance, formatDate=['dateDistributed',], exclude=['id',], objField={'forChild': '__str__()'}, formatBool=['sent',]),
             'id':instance.id
         }
 
@@ -67,3 +67,11 @@ def correctFieldsAdmin(sender, instance, **kwargs):
     instance.dataTableInfo = finalDict
 
 
+# @receiver(pre_save, sender=hoursEntry)
+# def hoursAddChangeGlobal(sender, instance, **kwargs):
+#     globObj = volunteer.objects.get(name="Global Volunteer Hour Count")
+
+#     if instance.pk:
+#         pass
+#     else:
+#         globObj.totalHoursWorked += instance.hoursWorked

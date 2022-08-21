@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User, auth, Group
 from itertools import chain
-import datetime
+from datetime import datetime
 
 from django.db.models import fields
 from django.db.models.fields import *
@@ -9,6 +9,24 @@ import re
 from django.core.exceptions import ValidationError
 #from django.utils.translation import ugettext as _
 from django.utils.translation import gettext as _, ngettext
+
+import os
+
+from google.auth.transport.requests import Request
+from google.auth.exceptions import TransportError
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+import base64
+from email.mime.text import MIMEText
+import json
+from mainpg.models import *
+
+# If modifying these scopes, delete the file token.json.
+SCOPES = ['https://www.googleapis.com/auth/gmail.send']
+
+
 
 def pVal(pw, alertList):
     beflen = len(alertList)
@@ -173,21 +191,23 @@ def getFieldsOfType(instance, fieldType, id=False):
     
 
 
-def getKeys(instance, exclude=[], keepDataTableInfo=False):
+def getKeys(instance, exclude=set(), overrideName={}, keepDataTableInfo=False):
     fieldsList = []
     if not keepDataTableInfo:
-        exclude.append('dataTableInfo')
+        exclude.add('dataTableInfo')
     for field in instance._meta.get_fields():
         curName = field.name
         if curName in exclude:
             exclude.remove(curName)
         else:
-            fieldsList.append(field.name)
-    #return fieldsList[1:]
+            toAdd = field.name
+            if toAdd in overrideName:
+                toAdd = overrideName[toAdd]
+            fieldsList.append(toAdd)
     return fieldsList
 
 
-def to_dict(instance, exclude=[], formatDate=[], display=[], objField={}, applyFunc={}, keepDataTableInfo=False):      #Both are neck-and-neck in terms of time taken. Which better? How improve?
+def to_dict(instance, exclude=[], formatDate=[], display=[], objField={}, applyFunc={}, formatBool=[], keepDataTableInfo=False):      #Both are neck-and-neck in terms of time taken. Which better? How improve?
     # fieldsList = []
     # for field in instance._meta.get_fields():
     #     curName = field.name
@@ -232,12 +252,17 @@ def to_dict(instance, exclude=[], formatDate=[], display=[], objField={}, applyF
             fieldsList[i] = getattr(getattr(instance, i), objField[i][:-2])()
         else:
             fieldsList[i] = getattr(getattr(instance, i), objField[i])
-    
+    for i in formatBool:
+        if fieldsList[i] == True:
+            fieldsList[i] = "Yes"
+        else:
+            fieldsList[i] = "No"
+
     return fieldsList
 
 
-def getVals(instance, exclude=[], formatDate=[], display=[], objField={}, applyFunc={}, keepDataTableInfo=False):
-    return list(to_dict(instance, exclude, formatDate, display, objField, applyFunc, keepDataTableInfo).values())
+def getVals(instance, exclude=[], formatDate=[], display=[], objField={}, applyFunc={}, formatBool=[], keepDataTableInfo=False):
+    return list(to_dict(instance, exclude, formatDate, display, objField, applyFunc, formatBool, keepDataTableInfo).values())
 
 
 
@@ -290,3 +315,138 @@ def binarySearch(arr, x, modifier=""):
  
     # The element was not present
     return -1
+
+
+
+MSG_QUEUE = []
+
+
+
+def initGmailAPI():
+    creds = None
+    # The file token.json stores the user's access and refresh tokens, and is
+    # created automatically when the authorization flow completes for the first
+    # time.
+    if os.path.exists('token.json'):
+        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    # If there are no (valid) credentials available, let the user log in.
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            serv = ServiceAccountInfo.load()
+            serv.serviceActive=False
+            errs = serv.errorMessages
+            errs["Initializing Gmail API failed since credentials file does not exist."] = True
+            serv.errorMessages = errs
+            serv.save()
+            return None
+            #flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
+            #creds = flow.run_local_server(port=8080)
+        # flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
+        # creds = flow.run_local_server(port=8080)
+        # Save the credentials for the next run
+        with open('token.json', 'w') as token:
+            token.write(creds.to_json())
+
+    try:
+        # Call the Gmail API
+        gmailService = build('gmail', 'v1', credentials=creds)
+        # REMOVED THE SERV SINGLETON UPDATE SINCE ONLY PLACE IT IS FIXED IS OAUTH2CALLBACK VIEW IN MAINPG. JUST UPDATING THE SINGLETON THERE
+        # serv = ServiceAccountInfo.load()
+        # serv.serviceActive = True
+        # serv.errorMessages = {}
+        # serv.save()
+
+
+        # results = gmailService.users().labels().list(userId='me').execute()
+        # labels = results.get('labels', [])
+
+        # if not labels:
+        #     print('No labels found.')
+        #     return gmailService
+        # print('Labels:')
+        # for label in labels:
+        #     print(label['name'])
+
+
+        return gmailService
+
+    except HttpError as error:
+        # TODO(developer) - Handle errors from gmail API.
+        serv = ServiceAccountInfo.load()
+        serv.serviceActive=False
+        errs = serv.errorMessages
+        errs[str(error)] = True
+        serv.errorMessages = errs
+        serv.save()
+        return None
+
+
+
+
+def create_message(sender, to, subject, message_text):
+    """Create a message for an email.
+
+    Args:
+    sender: Email address of the sender.
+    to: Email address of the receiver.
+    subject: The subject of the email message.
+    message_text: The text of the email message.
+
+    Returns:
+    An object containing a base64url encoded email object.
+    """
+    message = MIMEText(message_text)
+    message['to'] = to
+    message['from'] = sender
+    message['subject'] = subject
+    return {'raw': base64.urlsafe_b64encode(message.as_bytes()).decode()}
+
+
+
+def send_message(service, user_id, message):
+    """
+    service: Authorized Gmail API service instance.
+    user_id: Sender email address. Can use "me"
+    message: Message to be sent.
+
+    Returns Sent Message.
+
+    send_message(GMAIL_SERVICE, 'me', create_message("me", "pranavcsomu@gmail.com", "TEST SUBJ", "TEST MSG"))
+    """
+    serv = ServiceAccountInfo.load()
+    if not service:
+        MSG_QUEUE.append([user_id, message])
+        #ServiceActive and error message is already inserted from the initGmailAPIT function.
+        serv.messageQueue = serv.messageQueue + [[user_id, message],]
+        serv.save()
+        return False
+    try:
+        message = (service.users().messages().send(userId=user_id, body=message).execute())
+        serv.serviceActive = True
+        serv.errorMessages = {}
+        serv.save()
+        #print('Message Id: %s' % message['id'])
+        return True
+    except HttpError as error:
+        # TODO(developer) - Handle errors from gmail API.
+        MSG_QUEUE.append([user_id, message])
+        serv.serviceActive=False
+        errs = serv.errorMessages
+        errs[str(error)] = True
+        serv.errorMessages = errs
+        serv.messageQueue = serv.messageQueue + [[user_id, message],]
+        serv.save()
+        return False
+
+
+def sendMsgQueue():
+    while len(MSG_QUEUE) > 0:
+        curmess = MSG_QUEUE.pop()
+        #FIX THIS
+        send_message(initGmailAPI(), curmess[0], curmess[1])
+
+
+
+

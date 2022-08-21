@@ -2,6 +2,10 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from utility import adminAuth
 from django.contrib import messages
+from mainpg.models import ServiceAccountInfo
+import logging
+log = logging.getLogger(__name__)
+
 
 """def NAME_OF_DECORATOR(view_func):
     def wrapper_func(request, *args, **kwargs):
@@ -26,7 +30,9 @@ def unauthenticated_user(view_func):
 def allowed_users(allowed_roles=[]):
     def decorator(view_func):
         def wrapper_func(request, *args, **kwargs):
-
+            serv = ServiceAccountInfo.load()
+            if not serv.serviceActive:
+                messages.error(request, "Email service account is out of order. Please alert an NAFC volunteer or worker.")
             group = None
             if request.user.groups.exists():
                 group = request.user.groups.all()[0].name

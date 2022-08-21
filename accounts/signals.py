@@ -8,7 +8,6 @@ from utility import *
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import IntegrityError
 from django.contrib.auth.models import User
-from irequests.models import itemsRequest
 from .models import *
 from django.db.models.fields import TextField
 import json
@@ -41,7 +40,7 @@ def uniqueFields(sender, instance, **kwargs):
 def updateChildDescs(sender, instance, **kwargs):
     for field in getFieldsOfType(instance, TextField).keys():
         dataStr = getattr(instance, field)
-        if '\n' in dataStr:
+        if dataStr and '\n' in dataStr:
             if dataStr[-1] == '\n':
                 dataStr = dataStr[:-1]
             newStr = '. '.join([item.strip()[0:-1].replace("\r", "") if item.strip()[-1] in ';:,!?.' else item.strip() for item in dataStr.split('\n')]) + '.'
@@ -112,14 +111,18 @@ def updateDataTabInfoChild(sender, instance, **kwargs):
         return
     numReqs = instance.itemsrequest_set.count()
 
+    if not instance.hasAllergy:
+        instance.allergyDescription = None
+
     finalDict = {
         'edit': instance != child.objects.get(firstName="None"),
-        'result': getVals(instance, objField={'parent': '__str__()'}, formatDate=["dateOfBirth",], exclude=['id',]) + [numReqs,],
+        'result': getVals(instance, objField={'parent': '__str__()'}, formatDate=["dateOfBirth",], exclude=['id', ]) + [numReqs,],
         'id':instance.id
     }
     
 
     instance.dataTableInfo = finalDict
+
 
 
 

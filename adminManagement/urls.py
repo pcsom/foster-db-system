@@ -8,6 +8,7 @@ urlpatterns = [
     path("update-family", views.updateFamily, name="update-family"),
     path('view-family/<str:pk>', views.viewFamily, name='view-family'),
     path('create-user', views.createUser, name='create-user'),
+    path('change-reg-prog/<str:pk>', views.changeRegProg, name='change-reg-prog'),
 
     path("all-child-info", views.allChildInfo, name="all-child-info"),
     path("get-child-data-array", views.getChildDataArray, name="get-child-data-array"),
@@ -15,8 +16,9 @@ urlpatterns = [
     path('add-dist-entry', views.addDistLogEntry, name='add-dist-entry'),
     path('view-dist-log', views.viewDistLog, name='view-dist-log'),
     path('get-dist-data-array', views.getDistDataArray, name='get-dist-data-array'),
-    path("update-dist", views.updateDist, name="update-dist"),
+    path("update-dist/<str:pk>", views.updateDist, name="update-dist"),
     path("delete-dist", views.deleteDist, name="delete-dist"),
+    path("get-user-children", views.getUserChildren, name="get-user-children"),
 
     path('add-donor-entry', views.addDonorLogEntry, name='add-donor-entry'),
     path('view-donor-log', views.viewDonorLog, name='view-donor-log'),
@@ -40,4 +42,5 @@ urlpatterns = [
     path("notify-requests", views.notifyRequests, name="notify-requests"),
     path("get-user-requests", views.getUserRequests, name="get-user-requests"),
     path("request-track-info", views.requestTrackInfo, name="request-track-info"),
+    path("edit-request-form", views.editRequestForm, name="edit-request-form"),
 ]

@@ -6,64 +6,88 @@ from django.contrib.auth.admin import UserAdmin as AuthUserAdmin
 from datetime import date
 from utility import *
 
-class distributionEntry(models.Model):
-    forFamily = models.ForeignKey(User, default=User.objects.get(username="None").pk, on_delete=models.SET_DEFAULT)
-    dateDistributed = models.DateField(default=date.today)
+# class distributionEntry(models.Model):
+#     #forFamily = models.ForeignKey(User, default=User.objects.get(username="None").pk, on_delete=models.SET_DEFAULT)
+#     forChild = models.ForeignKey(child, default=child.objects.get(firstName="None").pk, on_delete=models.SET_DEFAULT)
+#     dateDistributed = models.DateField(default=date.today)
+#     sent = models.BooleanField(default=False)
 
-    #Infant items
-    onesies = models.IntegerField(default=0)
-    twoPieceOutfits = models.IntegerField(default=0)
-    sleepSack = models.IntegerField(default=0)
-    cribSheets = models.IntegerField(default=0)
-    crib = models.IntegerField(default=0)
-    bibs = models.IntegerField(default=0)
-    receivingBlankets = models.IntegerField(default=0)
-    burpCloths = models.IntegerField(default=0)
-    washcloths = models.IntegerField(default=0)
-    bottles = models.IntegerField(default=0)
-    stroller = models.IntegerField(default=0)
-    formula = models.IntegerField(default=0)
-    diapers = models.IntegerField(default=0)
-    wipes = models.IntegerField(default=0)
-    furniture = models.IntegerField(default=0)
+#     #Infant items
+#     onesies = models.PositiveIntegerField(default=0)
+#     twoPieceOutfits = models.PositiveIntegerField(default=0)
+#     sleepSack = models.PositiveIntegerField(default=0)
+#     cribSheets = models.PositiveIntegerField(default=0)
+#     crib = models.PositiveIntegerField(default=0)
+#     bibs = models.PositiveIntegerField(default=0)
+#     receivingBlankets = models.PositiveIntegerField(default=0)
+#     burpCloths = models.PositiveIntegerField(default=0)
+#     washcloths = models.PositiveIntegerField(default=0)
+#     bottles = models.PositiveIntegerField(default=0)
+#     stroller = models.PositiveIntegerField(default=0)
+#     formula = models.PositiveIntegerField(default=0)
+#     diapers = models.PositiveIntegerField(default=0)
+#     wipes = models.PositiveIntegerField(default=0)
+#     furniture = models.PositiveIntegerField(default=0)
 
-    #Children/teen
-    shortSleeveShirts = models.IntegerField(default=0)
-    longSleeveShirts = models.IntegerField(default=0)
-    shorts = models.IntegerField(default=0)
-    longPants = models.IntegerField(default=0)
-    pajamas = models.IntegerField(default=0)
-    dressClothes = models.IntegerField(default=0)
-    dresses = models.IntegerField(default=0)
-    winterCoats = models.IntegerField(default=0)
-    swimwear = models.IntegerField(default=0)
-    shoes = models.IntegerField(default=0)
+#     #Children/teen
+#     shortSleeveShirts = models.PositiveIntegerField(default=0)
+#     longSleeveShirts = models.PositiveIntegerField(default=0)
+#     shorts = models.PositiveIntegerField(default=0)
+#     longPants = models.PositiveIntegerField(default=0)
+#     pajamas = models.PositiveIntegerField(default=0)
+#     dressClothes = models.PositiveIntegerField(default=0)
+#     dresses = models.PositiveIntegerField(default=0)
+#     winterCoats = models.PositiveIntegerField(default=0)
+#     swimwear = models.PositiveIntegerField(default=0)
+#     shoes = models.PositiveIntegerField(default=0)
 
 
-    #Toiletries
-    toothbrush = models.IntegerField(default=0)
-    toothpaste = models.IntegerField(default=0)
-    deodorant = models.IntegerField(default=0)
-    soap = models.IntegerField(default=0)
-    shampoo = models.IntegerField(default=0)
-    ethnicHairCairProducts = models.IntegerField(default=0)
-    hairAccessories = models.IntegerField(default=0)
-    makeUpItems = models.IntegerField(default=0)
+#     #Toiletries
+#     toothbrush = models.PositiveIntegerField(default=0)
+#     toothpaste = models.PositiveIntegerField(default=0)
+#     deodorant = models.PositiveIntegerField(default=0)
+#     soap = models.PositiveIntegerField(default=0)
+#     shampoo = models.PositiveIntegerField(default=0)
+#     ethnicHairCairProducts = models.PositiveIntegerField(default=0)
+#     hairAccessories = models.PositiveIntegerField(default=0)
+#     makeUpItems = models.PositiveIntegerField(default=0)
     
 
-    #School Supplies
-    schoolSupplies = models.IntegerField(default=0)
+#     #School Supplies
+#     schoolSupplies = models.PositiveIntegerField(default=0)
 
-    #Toys/Games/Books
-    toys = models.IntegerField(default=0)
-    games = models.IntegerField(default=0)
-    books = models.IntegerField(default=0)
+#     #Toys/Games/Books
+#     toys = models.PositiveIntegerField(default=0)
+#     games = models.PositiveIntegerField(default=0)
+#     books = models.PositiveIntegerField(default=0)
 
-    #Bedding Furniture/items
-    bedding = models.IntegerField(default=0)
+#     #Bedding Furniture/items
+#     bedding = models.PositiveIntegerField(default=0)
 
-    #Weighted Blanket
-    weightedBlanket = models.IntegerField(default=0)
+#     #Weighted Blanket
+#     weightedBlanket = models.PositiveIntegerField(default=0)
+
+    
+#     def buildDefDict():
+#         return dict(edit=False, result=['SYSTEM ERROR - Data table information has not been configured',], id=-1)
+#     dataTableInfo = models.JSONField(default=buildDefDict)
+
+
+#     def __str__(self):
+#         return f"Log for {self.forFamily} on {self.dateDistributed}"
+
+
+
+
+
+class distributionEntry(models.Model):
+    #forFamily = models.ForeignKey(User, default=User.objects.get(username="None").pk, on_delete=models.SET_DEFAULT)
+    forChild = models.ForeignKey(child, default=child.objects.get(firstName="None").pk, on_delete=models.SET_DEFAULT)
+    dateDistributed = models.DateField(default=date.today)
+    sent = models.BooleanField(default=False)
+
+    #Data table info would be redundant. Try seeing if can just make dataTableInfo for the three fields above?
+    formData = models.JSONField(null=True,blank=True)
 
     
     def buildDefDict():
@@ -72,7 +96,10 @@ class distributionEntry(models.Model):
 
 
     def __str__(self):
-        return f"Log for {self.forFamily} on {self.dateDistributed}"
+        return f"Log for {child.objects.filter(id=self.forChild).parent} on {self.dateDistributed}"
+
+
+
 
 
 class donorEntry(models.Model):
@@ -112,17 +139,18 @@ class volunteer(models.Model):
     def __str__(self):
         return self.name
 
-def updateGlobalVolHours():
+
+
+def rectifyGlobalVolHours():        #Will sum all hours log entries to get the global volunteer hours count; use if somehow the count has become wrong
     globObj = volunteer.objects.get(name="Global Volunteer Hour Count")
-    allVols = volunteer.objects.all()
+    hoursEntries = hoursEntry.objects.all()
     grandTotal = 0
-
-    for vol in allVols:
-        if vol.id != globObj:
-            grandTotal += vol.totalHoursWorked
-
+    for entry in hoursEntries:
+        grandTotal += entry.hoursWorked
     globObj.totalHoursWorked = grandTotal
     globObj.save()
+
+
 
 
 class hoursEntry(models.Model):

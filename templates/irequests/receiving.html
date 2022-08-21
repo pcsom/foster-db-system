@@ -38,24 +38,21 @@
                 <form action="" method="POST" id="dataForm">
                     {% csrf_token %}
 
-                    <input type="radio" id="delivery" name="method" value="delivery">
-                    <label for="delivery"> Delivery to home - a volunteer will drop your items on your porch as soon as possible after your request(s) is filled.</label><br><br>
+                    
+                    
                     <input type="radio" id="pickup" name="method" value="pickup">
                     <label for="pickup"> Pick-up at foster closet (5510 Alabama 53, Harvest, AL 35749).</label><br>
 
-                    <label for="contList" class="tab"> -If you chose to pick up, please select days you are available to come by (all times are AM):</label><br>
+                    <label for="contList" class="tab"> -Please select days you are available to come by (all times are AM):</label><br>
                     <input type="checkbox" id="mon" name="mon" class="xtratab">
                     <label for="mon"> Mondays 8-11</label><br>
-                    <input type="checkbox" id="tue" name="tue" class="xtratab">
-                    <label for="tue"> Tuesdays 8-11</label><br>
                     <input type="checkbox" id="wed" name="wed" class="xtratab">
                     <label for="wed"> Wednesdays 8-11</label><br>
-                    <input type="checkbox" id="thu" name="thu" class="xtratab">
-                    <label for="thu"> Thursdays 8-11</label><br>
-                    <input type="checkbox" id="fri" name="fri" class="xtratab">
-                    <label for="fri"> Fridays 8-11</label><br>
                     <input type="checkbox" id="sat" name="sat" class="xtratab">
                     <label for="sat"> Saturdays 8-11</label><br><br>
+                    
+                    <input type="radio" id="special" name="method" value="special">
+                    <label for="special"> Request to make a specal arrangement. </label><br><br>
 
                     <input type="submit" value="Submit" class="go" onclick="return sendData()">
                 </form>
@@ -64,7 +61,7 @@
                 
                 <script>
                     var rest = JSON.parse('{{rest}}'.replaceAll("&quot;", '"'))
-                    var delivery = JSON.parse('{{delivery}}')
+                    var special = JSON.parse('{{special}}')
                     var pickup = JSON.parse('{{pickup}}')
                     for (var i = 0; i < rest.length; i++)
                     {
@@ -76,7 +73,7 @@
                     }
                     else
                     {
-                        $(`#delivery`).prop('checked', true)
+                        $(`#special`).prop('checked', true)
                     }
 
 

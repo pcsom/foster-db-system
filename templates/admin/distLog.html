@@ -62,9 +62,13 @@
             <thead>
                 {% csrf_token %}
                 <tr>
-                    {% for one in infoList %}
+                    {% for one in infoList|slice:":-1" %}
                         <th scope="col" onclick="sortTable('{{one.num}}')">{{one.field}}</th>
                     {% endfor %}
+                    {% for one in curFields %}
+                        <th scope="col" onclick="sortTable('{{infoList|length|add:forloop.counter0}}')">{{one}}</th>
+                    {% endfor %}
+
                     <th scope="col">Manage</th>
                 </tr>
             </thead>
@@ -79,6 +83,8 @@
         <script>
             var newId = 4
             var newTest = {'name':null, 'id':`test-${newId}`, 'result':null}
+            var curFields = JSON.parse('{{curFields}}'.replaceAll("&#x27;", `"`))
+            var curDbns = JSON.parse('{{curDbns}}'.replaceAll("&#x27;", `"`))
             
             setupFilters('{{infoList}}'.split(':').length - 1, "entries")
 
@@ -109,7 +115,7 @@
             })
         
 
-            var tests = [], users = []
+            var tests = [], users = [], children = []
             
             var dataUrl = '/get-dist-data-array'
             $.ajax({
@@ -118,35 +124,18 @@
                 success:function(response){
                     tests = response[0]
                     users = response[1]
+                    children = response[2]
                     for (var i in tests){
                         addRow(tests[i])
                     }
                     rows = $('#tests-table').children('tr')
                     
-                    $('#totCount').text(`${tests.length} entries in total`)
+                    $('#totCount').text(`${tests.length} entries exist on the sytem`)
                     $('#matchCount').text(`${tests.length} entries match the current search filters`)
+                    resLen = $('#myTable>thead>tr>th').length-2     //Exclude the row number and Manage column
                 }
             })
 
-
-            function updateTestPOST(data, callback) {
-                var updateUrl = '/update-dist'
-                $.ajax({
-                    method:'POST',
-                    url:updateUrl,
-                    headers: {'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()},
-                    data:data,
-                    success:function(response) {
-                        var i = 0
-                        for (message of response)
-                        {
-                            $('#alerts').append(`<h3 style="background-color:tomato;">ALERT: ${message}</h3>`)
-                            i += 1
-                        }
-                        callback(i > 0)
-                    }
-                })
-            }
 
 
             function deleteTestPOST(data) {
@@ -154,6 +143,7 @@
                 $.ajax({
                     method:'POST',
                     url:deleteUrl,
+                    headers: {'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()},
                     data:data,
                     success:function() {
 
@@ -162,194 +152,42 @@
             }
         
         
-            var resLen = 0
-            function addRow(obj){
+            var resLen = 0, curFormData = null, curAmount = null
+            function addRow(obj)
+            {
                 resLen = obj.result.length
-                var row = `<tr scope="row" class="test-row-${obj.id}">`
-                for (var i = 0; i < obj.result.length; i++)
+                curFormData = JSON.parse(obj.result[resLen-1])
+                var row = `<tr scope="row" class="test-row-${obj.id}">`, curFieldVal = null
+                row += `<td id="result-${obj.id}-0" data-index="0}" data-testid="${obj.id}" class="oneLineData">${users[obj.id]}</td>`
+                for (var i = 1; i < resLen; i++)
                 {
-                    row += `<td id="result-${obj.id}-${i}" data-index="${i}" data-testid="${obj.id}" class="oneLineData">${obj.result[i]}</td>`
+                    row += `<td id="result-${obj.id}-${i}" data-index="${i}" data-testid="${obj.id}" class="oneLineData">${obj.result[i-1]}</td>`
+                }
+                for (var i = resLen+1; i < curFields.length + resLen + 1; i++)
+                {
+                    curAmount = curFormData[curDbns[i-resLen-1]]
+                    if (typeof curAmount == "undefined")
+                    {
+                        curAmount = ""
+                    }
+                    row += `<td id="result-${obj.id}-${i}" data-index="${i}" data-testid="${obj.id}" class="oneLineData">${curAmount}</td>`
                 }
                 row +=      `<td class="oneLineData">
-                                <button class="danger " data-testid="${obj.id}" id="delete-${obj.id}">Delete</button>
-                                <button class="normal" disabled data-testid="${obj.id}" id="save-${obj.id}">Save</button>
-                                <button class="danger hidden" data-testid="${obj.id}" id="cancelUpdate-${obj.id}">Cancel</button>
+                                <a href="/update-dist/${obj.id}" target="_blank"><button class="normal">Edit...</button></a>
+                                <button class="danger" data-testid="${obj.id}" id="delete-${obj.id}">Delete</button>
                                 <button class="normal hidden" data-testid="${obj.id}" id="cancel-${obj.id}">Cancel</button>
                                 <button class="danger hidden" data-testid="${obj.id}" id="confirm-${obj.id}">Confirm</button>
                             </td>
                         </tr>`
                 $('#tests-table').append(row)
+
                 
                 $(`#delete-${obj.id}`).on('click', deleteTest)
                 $(`#cancel-${obj.id}`).on('click', cancelDeletion)
-                $(`#cancelUpdate-${obj.id}`).on('click', cancelUpdate)
                 $(`#confirm-${obj.id}`).on('click', confirmDeletion)
-                $(`#save-${obj.id}`).on('click', saveUpdate)
-
-                for (var j = 0; j < obj.result.length; j++)
-                {
-                    $(`#result-${obj.id}-${j}`).on('click', editResult)
-                }
             }
             
-            function editResult(){
-                var testid = $(this).data('testid')
-                var thisId = $(this).data('index')
 
-                var value = $(this).html()
-
-                var deleteBtn = $(`#delete-${testid}`)
-                var cancelUpdateBtn = $(`#cancelUpdate-${testid}`)
-                var saveBtn = $(`#save-${testid}`)
-
-                deleteBtn.addClass('hidden')
-                cancelUpdateBtn.removeClass('hidden')
-                saveBtn.prop('disabled', false)
-
-
-                $(this).unbind()
-                var curVal
-                if(thisId == '0')
-                {
-
-                    var elem = `<select id="test-${testid}-${thisId}" data-testid="${testid}">`, uId = ""
-                    for (aUser of users)
-                    {
-                        if (aUser[1] == value)
-                        {
-                            uId = aUser[0]
-                        }
-                        elem += `<option value="${aUser[0]}">${aUser[1]}</option>`
-                    }
-                    elem += `</select>`
-
-                    $(this).html(elem)
-                    $(`#test-${testid}-${thisId} option[value=${uId}]`).attr('selected', 'selected')
-
-                    $(`#test-${testid}-${thisId}`).select2({
-                        width: '200px'
-                    })
-                }
-                else if(thisId == '1')
-                {
-                    $(this).html(`<input class="result" id="test-${testid}-${thisId}" data-testid="${testid}" type="text" value="${value}">`)
-                    $(function () {
-                        $(`#test-${testid}-${thisId}`).datepicker({
-                        format: 'mm/dd/yyyy',
-                        });
-                    });
-                }
-                else
-                {
-                    $(this).html(`<input class="result" id="test-${testid}-${thisId}" data-testid="${testid}" type="number" value="${value}" size="3">`)
-                }
-
-                
-
-                //.result is referencing the result class in the line above
-                /*$(`.result`).on('keyup', function(){
-                    var testid = $(this).data('testid')
-                    var saveBtn = $(`#save-${testid}`)
-                    //saveBtn.removeClass('hidden')
-                    saveBtn.prop('disabled', false)
-                })*/
-            }
-
-        
-            function saveUpdate(){
-                size = resLen
-                var testid = $(this).data('testid')
-                var saveBtn = $(`#save-${testid}`)
-                var row = $(`.test-row-${testid}`)
-                var deleteBtn = $(`#delete-${testid}`)
-                var cancelUpdateBtn = $(`#cancelUpdate-${testid}`)
-                var blank = false
-
-                //saveBtn.addClass('hidden')
-                saveBtn.prop('disabled', true)
-                row.css('opacity', "0.5")
-                cancelUpdateBtn.addClass('hidden')
-
-                results = []
-                for (var i = 0; i < size; i++)
-                {
-                    var newVal = $(`#test-${testid}-${i}`).val()
-
-                    if(typeof newVal == "undefined")
-                    {
-                        newVal = $(`#result-${testid}-${i}`).text()
-                    }
-
-                    results.push(newVal)
-                }
-
-                $('#alerts').html('')
-                var data = {'id':testid, 'result':results}
-
-                updateTestPOST(data, function(alerted) {
-                    if (alerted)
-                    {
-                        cancelUpdateBtn.removeClass('hidden')
-                        saveBtn.prop('disabled', false)
-                    }
-                    else
-                    {
-                        var i = 0
-                        for (const aVal of results)
-                        {
-                            if (i == 0 && `${Number(aVal)}` != "NaN")
-                            {
-                                var nameVal = $(`#test-${testid}-${i} option:selected`).text()
-                                $(`#result-${testid}-${i}`).html(`${nameVal}`)
-                            }
-                            else
-                            {
-                                $(`#result-${testid}-${i}`).html(`${aVal}`)
-                            }
-                            $(`#result-${testid}-${i}`).unbind('click')
-                            $(`#result-${testid}-${i}`).on('click', editResult)
-                            
-                            i += 1
-                        }
-
-                        deleteBtn.removeClass('hidden')
-                    }
-
-                    setTimeout(function(){
-                        row.css('opacity', '1')
-                    }, 400)
-                })
-            }
-
-            function cancelUpdate(){
-                size = resLen
-                var testid = $(this).data('testid')
-                var ogVals = []
-                for(var i = 0; i < tests.length; i++)
-                {
-                    if (tests[i].id == testid)
-                    {
-                        ogVals = tests[i].result
-                    }
-                }
-
-                var deleteBtn = $(`#delete-${testid}`)
-                var saveBtn = $(`#save-${testid}`)
-                var cancelUpdateBtn = $(`#cancelUpdate-${testid}`)
-
-                for (var i = 0; i < size; i++)
-                {
-                    $(`#result-${testid}-${i}`).html(`${ogVals[i]}`)
-                    //console.log(ogVals[i])
-                    $(`#result-${testid}-${i}`).unbind('click')
-                    $(`#result-${testid}-${i}`).on('click', editResult)
-                }
-        
-                deleteBtn.removeClass('hidden')
-                saveBtn.prop('disabled', true)
-                //saveBtn.addClass('hidden')
-                cancelUpdateBtn.addClass('hidden')
-            }
         
         
         

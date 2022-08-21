@@ -115,6 +115,7 @@
                                 <th>Clothing Size</th>
                                 <th>Shoe Size</th>
                                 <th>New Placement?</th>
+                                <th>Relationship</th>
                                 <th>Allergies</th>
                                 <th>Edit Info</th>
                             </tr>
@@ -128,8 +129,9 @@
                                     <td>{{child.clothesSize}}</td>
                                     <td>{{child.shoeSize}}</td>
                                     <td>{{child.newPlacement}}</td>
+                                    <td>{{child.relationship}}</td>
                                     <td>{{child.allergyDescription}}</td>
-                                    <td><a href="{% url 'update-child' child.id %}">Edit</a></td>
+                                    <td><a href="{% url 'update-child' child.id %}" target="_blank">Edit</a></td>
                                 </tr>
                             {% endfor %}
                         </table><br>
@@ -172,6 +174,16 @@
                         <div class="newDiv alerts"></div><br>
 
                         {% for single_field in form %}
+                            {% if single_field.field.widget.input_type == "checkbox" %}
+                                {{single_field}}
+                                <label for="{{single_field.name}}">{{single_field.label}}</label><br><br>
+                            {% elif single_field.name != "forChild" %}
+                                <label for="{{single_field.name}}">{{single_field.label}}</label><br>
+                                {{single_field}}<br><br>
+                            {% endif %}
+
+
+                            <!--
                             {% if single_field.name == "bedding" or single_field.name == "strollerType" or single_field.name == "formulaType" or single_field.name == "diapersSize" or single_field.name == "otherInfantNeeds" or single_field.name == "makeUpItemsDescription"  or single_field.name == "toysGamesBooks"  or single_field.name == "otherNeeds"%}
                                 <label for="{{single_field.name}}">{{single_field.label}}</label><br>
                                 {{single_field}}<br><br>
@@ -195,6 +207,7 @@
                                 {{single_field}}
                                 <label for="{{single_field.name}}">{{single_field.label}}</label><br><br>
                             {% endif %}
+                            -->
                         {% endfor %}
                         
                         <br><div class="newDiv alerts"></div>
@@ -238,6 +251,7 @@
                 var toBasicBtn = document.getElementById("toBasic");
                 toBasicBtn.addEventListener("click", goToBasic);
 
+                /*
                 if (!$('#id_stroller').is(":checked"))
                 {
                     $('#id_strollerType').prop('disabled', true)
@@ -271,9 +285,62 @@
                 $('#id_formula').on('click', function() { return toggleInp('id_formulaType') })
                 $('#id_diapers').on('click', function() { return toggleInp('id_diapersSize') })
                 $('#id_makeUpItems').on('click', function() { return toggleInp('id_makeUpItemsDescription') })
+                washcloths*/
 
-
-
+                var curclass = "", prevclass = "", prevind = null, startfield = null
+                $("#formDiv>.formfield").each(function(ind){
+                    //console.log($(this))
+                    curclass = $(this).data("itemtype")
+                    if (prevclass != curclass)
+                    {
+                        var toAdd = ""
+                        if (prevclass != "")
+                        {   
+                            //var toWrap = startfield.nextUntil($(this).prev().prev())        //relies on fact that there is a label, a <br>, then a short answer field
+                            var toWrap = null
+                            if ($(this).attr('type') == "checkbox")
+                            {
+                                toWrap = startfield.nextUntil($(this))
+                            }
+                            else
+                            {
+                                toWrap = startfield.nextUntil($(`label[for="${$(this).attr('name')}"]`))
+                            }
+                            var wrapper1 = toWrap.addBack().wrapAll(`<div class="collapsibleContent" />`).parent()
+                            $(`<button type="button" class="collapsible thin generalColl">${prevclass}</button>`).insertBefore(wrapper1).add(wrapper1).wrapAll(`<div class="newDiv collapsibleContainer">`).next().prepend("<br>")
+                        }
+                        toAdd += `<div class="newDiv collapsibleContainer">
+                            <button type="button" class="collapsible thin generalColl">${curclass}</button>
+                            <div class="collapsibleContent">
+                            `
+                        if ($(this).attr('type') == "checkbox")
+                        {
+                            //$(toAdd).insertBefore($(this))
+                            startfield = $(this)
+                        }
+                        else
+                        {
+                            //$(toAdd).insertBefore($(`label[for="${$(this).attr('name')}"]`))
+                            startfield = $(`label[for="${$(this).attr('name')}"]`)
+                        }
+                        prevclass = curclass
+                    }
+                    prevind = ind
+                })
+                var lastElem = $("#formDiv>.formfield").last(), wrapper1 = null
+                if (lastElem.attr('type') == "checkbox")
+                {
+                    wrapper1 = startfield.nextUntil($(`label[for="${lastElem.attr('name')}"]`)).next().addBack().add(startfield).wrapAll(`<div class="collapsibleContent" />`).parent()
+                }
+                else
+                {
+                    wrapper1 = startfield.nextUntil(lastElem).next().addBack().add(startfield).wrapAll(`<div class="collapsibleContent" />`).parent()
+                }
+                wrapper1.prepend("<br>")
+                wrapper1.append("<br><br>")
+                //var wrapper1 = startfield.nextAll($("#formDiv>.formfield").last()).addBack().wrapAll(`<div class="collapsibleContent" />`).parent()
+                $(`<button type="button" class="collapsible thin generalColl">${prevclass}</button>`).insertBefore(wrapper1).add(wrapper1).wrapAll(`<div class="newDiv collapsibleContainer">`)
+                        
 
 
                 function goToChild()

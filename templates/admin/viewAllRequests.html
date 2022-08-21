@@ -16,24 +16,14 @@
 
             {% if group == "1" %}
                 <p>
-                    Here, you can find all item requests, sorted from oldest to latest, and grouped by user. 
-                    Each black box below represents a user; click it to see their requests, along with an option to generate a printout for their latest requests. 
-                    Each request is represented by a gray box; click it for specific details.<br>
-                    Each user is labelled by the status of their latest request (one of (P) (C) (R) (F) ). Learn what these symbols mean <a href="/request-track-info" target="_blank">here</a>.
+                    All items requests are grouped by user. 
+                    Each user is labelled by the status of their latest request. 
+                    Information on status labels can be found <a href="/request-track-info" target="_blank">here</a>.
                 </p>
             
-                <br><h3>About the printout</h3>
-                <p>
-                    -The printout will contain items from the family's (P) and (C) requests, along with relevant family/child information. <br>
-                    -Generating a printout will set all of the respective family's (P) requests to (C).<br>
-                    -<strong>ADDITIONALLY:</strong> A user may make a request or change their preferred method of receiving at any time. If you ever 
-                    make multiple printouts for a given user, please know that a new printout may differ from an older one; if so, 
-                    ensure that you follow the information on <strong>the newest one</strong>.
-                </p><br>
             {% elif group == "0" %}
                 <p>
-                    Here, you can find all item requests, sorted from oldest to latest. 
-                    Each gray box below represents a request; click them for specific details.
+                    All items requests in the database are listed below.
                 </p>
             {% endif %}
 
@@ -55,9 +45,26 @@
                     <h3 style="background-color:rgb(74, 255, 255)">ALERT: {{message}}</h3>
                 {% endif %}
             {% endfor %}
+
+            {% if group == "1" %}
+                <div class="newDiv collapsibleContainer manyList">
+                    <button type="button" class="collapsible manyList generalColl" id="infoColl">Printout information</button>
+                    <div class="collapsibleContent">
+                        <p>
+                            -The printout contains items from the family's (Pending) and (Collecting) requests, plus relevant family/child information. <br>
+                            -Generating a printout will set all of the respective family's (Pending) requests to (Collecting).<br>
+                            -<strong>ADDITIONALLY:</strong> A user may make a request or change their information at any time. If you  
+                            make multiple printouts for a given user, know that one printout may differ from another;  
+                            ensure that you follow the information on <strong>the newest one</strong>.
+                        </p>
+                    </div>
+                </div>
+            {% endif %}
+
+           
             
             <div class="newDiv collapsibleContainer">
-                <button type="button" class="collapsible generalColl thin" id="filterColl">Search filters & sorting</button>
+                <button type="button" class="collapsible generalColl manyList" id="filterColl">Search filters & sorting</button>
                 <div class="collapsibleContent">
                     {% if group == "0" %}
                         <p>Filter by text: <input type="text" id="bar" class="aFilter"></p>
@@ -79,7 +86,7 @@
             </div><br>
 
             {% if group == "1" %}
-                <h4 style="padding:0px; margin:0px;" id="totCountU">{{userList|length}} users in total</h4>
+                <h4 style="padding:0px; margin:0px;" id="totCountU">{{userList|length}} users exist on the sytem</h4>
                 <h4 style="padding:0px; margin:0px;" id="matchCountU">{{userList|length}} users match the current search filters</h4>
                 <br>
             {% endif %}
@@ -168,14 +175,14 @@
                     totReq += i['data'].length
                 }
                 totU = iReqs.length
-                $('#totCountU').text(`${totU} users in total`)
+                $('#totCountU').text(`${totU} users exist on the sytem`)
                 $('#matchCountU').text(`${totU} users match the current search filters`)
             }
             else
             {
                 totReq = iReqs.length
             }
-            $('#totCount').text(`${totReq} requests in total`)
+            $('#totCount').text(`${totReq} requests exist on the sytem`)
             $('#matchCount').text(`${totReq} requests match the current search filters`)
 
             $(window).on('load', function() {
@@ -210,7 +217,7 @@
                                 setTimeout(function () {
                                     var toUpdate = content.parent().parent()
                                     toUpdate.css("maxHeight", toUpdate.prop("scrollHeight") + "px")
-                                }, 200)
+                                }, 100)
                             }
                         }
                     }
@@ -439,7 +446,7 @@
                         setTimeout(function () {
                             var toUpdate = $('#usersContainter').find('>button.active').next()
                             toUpdate.css("maxHeight", toUpdate.prop("scrollHeight") + "px")
-                        }, 200)
+                        }, 100)
                     }
 
                     makeChangeWithUser = function()

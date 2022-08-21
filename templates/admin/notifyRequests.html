@@ -28,7 +28,7 @@
 			<h3>Notify a family about their items requests</h3>
 			<p>
 				On this page, you can send a family an email alert that the items they requested are ready for pickup/delivery.<br>
-				This action will set all (C) requests to the (R) status; (P) requests will remain as (P). <a href="/request-track-info">What do these mean?</a>
+				This action will set all (Collecting) requests to the (Receiving) status. A guide for request status can be found <a href="/request-track-info" target="_blank">here</a>.
 			</p>
 
             {% for message in messages %}
@@ -41,7 +41,9 @@
 				{% endif %}
 			{% endfor %}
 
-
+			{% if isEmpty %}
+			<h4>ALERT: The system did not find any items that are ready to distribute; i.e., there are no requests with the (Collecting) status.</h4>
+			{% else %}
 			<form action="" method="POST">
 				{% csrf_token %}
 				Select a family/user:<br>
@@ -52,8 +54,8 @@
 				</select><br>
 
 				
-				<h4 id="noPend" hidden>ALERT: There are no items that are ready to be sent to this family; i.e., the system didn't find any (C) requests</h4> <br><br>
-
+				<h4 id="newPend" hidden>ALERT: This family has new pending requests that have not been viewed/addressed. </h4> <br>
+				<a href="" id="view" target="_blank"><button type="button" class="normal">View this family's requests...</button></a><br><br>
 
 				<label for="contactMethod">User's preferred method of contact: </label>
 				<input type="text" id="contactMethod" value="" size="80" disabled><br>
@@ -94,7 +96,7 @@
 
 
 				var selUser = "--Loading--", selReceiving, uId, reqList = "--Loading--\n"
-				var fyi = "NAFC is open Monday through Saturday, 8 to 11 A.M."
+				//var fyi = "NAFC is open Monday through Saturday, 8 to 11 A.M."
 
 				var pickupOptions = ["These items will be delivered to your address!", 
 					"These items are ready for pickup!", 
@@ -140,7 +142,7 @@
 					selReceiving = ""
 					loadFinalMessage()
 
-					uId = $(`#userSelect`).val()
+					var uId = $(`#userSelect`).val()
 					var updateUrl = '/get-user-requests'
 					ajaxObj = $.ajax({
 						method:'POST',
@@ -169,14 +171,14 @@
 							resetPick()
 							if (uData.receiving[0][0] == "P")
 							{
-								var times = ' ' + fyi
+								var times = ' '
 								if(uData.receiving.length == 2)
 								{
-									times += ", and you indicated that you wanted to pick the items up at the following time (A.M.):\n\t"
+									times += " You indicated that you wanted to pick the items up at the following time (A.M.):\n\t"
 								}
 								else
 								{
-									times += ", and you indicated that you wanted to pick the items up at one of the following times (A.M.):\n"
+									times += " You indicated that you wanted to pick the items up at one of the following times (A.M.):\n"
 								}
 
 								for (var i = 1; i < uData.receiving.length; i++)
@@ -189,11 +191,11 @@
 							}
 							else
 							{
-								pickupOptions[1] = "These items are ready for pickup! " + fyi
+								pickupOptions[1] = "These items are ready for pickup! "
 								$("#receiving").val('1')
 							}
 
-
+							$("#view").attr("href", `/view-requests/${uId}`)
 							if (uData.noPend)
 							{
 								$("#noPend").removeAttr("hidden")
@@ -225,7 +227,9 @@
 						}
 					})
 				}
+				
 			</script>
+			{% endif %}
 		</div>
 	</div>
 </div>

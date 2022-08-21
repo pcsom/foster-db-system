@@ -1,0 +1,40 @@
+{% extends 'nafcbase.html' %}
+{% load static %}
+{% block content %}
+
+<div class="body">
+	<div class="home">
+		<div class="section">
+
+            {% for message in messages %}
+                {% if message.tags == "success" %}
+                    <h3 style="background-color:rgb(162, 255, 68)">ALERT: {{message}}</h3>
+                {% elif message.tags == "error" %}
+                    <h3 style="background-color:tomato">ALERT: {{message}}</h3>
+                {% else %}
+                    <h3 style="background-color:rgb(74, 255, 255)">ALERT: {{message}}</h3>
+                {% endif %}
+            {% endfor %}
+
+            <h2>NAFC System Email Account</h2>
+
+            {% if authError %}
+                <p>Unable to access NAFC system email account. Please use the link below to sign into the email system using a service account.</p>
+                <p>
+                    Logged errors:<br>
+                    {% for i in errList %}
+                        {{i}}<br>
+                    {% endfor %}
+                </p>
+
+            {% else %}
+                <p>NAFC system email account is running smoothly without errors.</p>
+            {% endif %}
+            <br><br>
+            <a href="{{authLink}}" target="_blank"><button class="go">Sign into the email system using a service account.</button></a>
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+

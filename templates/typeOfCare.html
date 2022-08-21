@@ -5,6 +5,8 @@
 <div class="body">
 	<div class="home">
 		<div class="section">
+            <script src="{% static 'js/datepicker.js' %}"></script>
+            <link rel="stylesheet" href="{% static 'css/datepicker.css' %}" />
 
 			<h3>{{pn}} Type of Care</h3>
 						
@@ -37,8 +39,7 @@
 				<label for="adoptive"> <strong>Adoptive</strong></label><br><br>
 				
 				<div id="adoptiveElement" style="display: none;">
-					<label for="adoptedChildren">Please list the adopted children's names and their dates of adoption: *</label><br>
-					<textarea rows="5" cols="50" name="adoptedChildren" id="adoptedChildren">{{adoptive.adoptedChildren}}</textarea><br><br>	
+						
 				</div>
 				<br><br>
 
@@ -71,10 +72,12 @@
 				<label for="kinship"> <strong>Kinship</strong></label><br><br>
 
 				<div id="kinshipElement" style="display: none;">
+					<!--
 					<label for="kinshipChildren">Please list the names of the children in your kinship: *</label><br>
 					<textarea rows="5" cols="50" name="kinshipChildren" id="kinshipChildren">{{kinship.children}}</textarea><br><br>
+					-->
 					
-					<label for="placementRelation">Relationship to Kinship placement: *</label><br>
+					<label for="placementRelation">Relationship to Kinship placement(s): *</label><br>
 					<textarea rows="1" cols="50" name="placementRelation" id="placementRelation">{{kinship.placementRelation}}</textarea><br><br>
 					
 					<label for="kinshipCounty">Kinship county: *</label><br>
@@ -126,7 +129,7 @@
 					<label for="signature">Electronic Signature: *</label><br>
 					<input type="text" name="signature" required><br><br>
 					<label for="date">Date (MM/DD/YYYY): *</label><br>
-					<input type="text" name="date" required><br><br><br><br>
+					<input type="text" name="date" id="signDate" required><br><br><br><br>
 				{% endif %}
 
 				<input type="submit" class="go" value="Submit">
@@ -135,6 +138,10 @@
 			<div class="newDiv alerts"></div>
 
 			<script>
+
+				$("#signDate").datepicker({
+                    format: 'mm/dd/yyyy',
+                })
 
 				$('#careForm').on('submit', function(e) {
 					e.preventDefault()

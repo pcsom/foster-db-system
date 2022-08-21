@@ -33,27 +33,29 @@
                     <p>{{plainPn}} hasn't made any items requests yet!</p>
                 {% endif %}
             {% else %}
+                <p>Here, you can find all of {{pn}} item requests. Each request is labelled with its status.</p>
+                <div class="newDiv collapsibleContainer manyList">
+                    <button type="button" class="collapsible light manyList generalColl" id="statusInfo">Info on status labels</button>
+                    <div class="collapsibleContent">
+                        <p>(Pending) = the request was submitted it recently; NAFC hasn't started item collection yet.<br>
+                            (Collecting) = item collection is in progress.<br>
+                            (Recieving) = items have been collected, and {{plainPn}} can pick them up at <a href="https://www.northalabamafostercloset.com/contact-us/" target="_blank">NAFC</a>.<br>
+                            (Fulfilled) = {{plainPn}} {{verb}} received the respective items.</p>            
+                    </div>
+                </div>
 
-                <p>Here, you can find all of {{pn}} past item requests, initially sorted from latest to oldest. 
-                    Each gray box below represents a request; click them for more details.</p>
-                <p>A request labelled with (P) denotes that it is pending ({{plainPn}} submitted it recently, and NAFC hasn't started item collection yet).<br>
-                    A (C) means that the items for the request are currently being collected.<br>
-                    A (R) means that the items have been collected, and {{plainPn}} may pick them up at <a href="https://www.northalabamafostercloset.com/contact-us/" target="_blank">NAFC</a>.<br>
-                    A (F) denotes that {{plainPn}} already received the items and the request has been fulfilled.</p>
-
-                <br>
                 <div class="newDiv collapsibleContainer">
-                    <button type="button" class="collapsible light thin generalColl" id="filterColl">Search filters & sorting</button>
+                    <button type="button" class="collapsible light manyList generalColl" id="filterColl">Search filters & sorting</button>
                     <div class="collapsibleContent">
                         <p>Filter by text: <input type="text" id="bar" class="aFilter"></p>
-                        <p>Filter by date (format MM/DD/YYYY): FROM: <input type="" id="date1" class="dateSelect aFilter"> TO: <input type="" id="date2" class="dateSelect aFilter"></p>
+                        <p>Filter by date (MM/DD/YYYY): FROM: <input type="" id="date1" class="dateSelect aFilter"> TO: <input type="" id="date2" class="dateSelect aFilter"></p>
                         <p>Sort order: 
                             <input type="button" class="normal activeBorder" id="lo" value="Latest to Oldest"> 
                             <input type="button" class="normal" id="ol" value="Oldest to Latest">
                         </p>                        
                     </div>
                 </div><br>
-                <h4 style="padding:0px; margin:0px;">{{numReq}} requests in total</h4>
+                <h4 style="padding:0px; margin:0px;">{{numReq}} requests exist under your account</h4>
                 <h4 style="padding:0px; margin:0px;" id="matchCount">{{numReq}} requests match the current search filters</h4>
 
                 <br>
