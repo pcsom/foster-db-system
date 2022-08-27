@@ -17,9 +17,10 @@
             {% endfor %}
 
             <h2>NAFC System Email Account</h2>
+            <p>The NAFC system uses a service email account to send emails automatically through the website. The service account that should be in use is nafcdb@gmail.com.</p>
 
             {% if authError %}
-                <p>Unable to access NAFC system email account. Please use the link below to sign into the email system using a service account.</p>
+                <p><strong>System is currently unable to access NAFC system email account. Please use the button below to sign into the email system with a service account.</strong></p>
                 <p>
                     Logged errors:<br>
                     {% for i in errList %}
@@ -28,10 +29,10 @@
                 </p>
 
             {% else %}
-                <p>NAFC system email account is running smoothly without errors.</p>
+                <p><strong>NAFC email system is running smoothly without errors. No action is required.</strong></p>
             {% endif %}
             <br><br>
-            <a href="{{authLink}}" target="_blank"><button class="go">Sign into the email system using a service account.</button></a>
+            <a href="{{authLink}}" target="_blank"><button class="go">Provide the email system access to a service account{% if not authError %} (CURRENTLY UNNEEDED){% endif %}</button></a>
 		</div>
 	</div>
 </div>

@@ -31,7 +31,9 @@ def allowed_users(allowed_roles=[]):
     def decorator(view_func):
         def wrapper_func(request, *args, **kwargs):
             serv = ServiceAccountInfo.load()
+            log.debug(f"{serv.serviceActive}")
             if not serv.serviceActive:
+                log.debug("NOT ACTIVE")
                 messages.error(request, "Email service account is out of order. Please alert an NAFC volunteer or worker.")
             group = None
             if request.user.groups.exists():
