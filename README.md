@@ -1,6 +1,6 @@
 # Foster Database System
 
-This is a communication and data management tool created for the North Alabama Foster Closet (NAFC).
+This is a full stack communication and data management tool created from scratch for the North Alabama Foster Closet (NAFC).
 
 ## Background:
 The foster care system in the United States is ridden with many systematic faults, resulting in problems such as significant high school/college dropout, poverty, and homelessness rates. NAFC is an organization that seeks to support the foster care system by distributing much-needed physical resources to foster families, including clothes, infant care, school supplies, bedding, and more. This significantly reduces the costs of foster care and allows families to focus on other important things like children’s emotional needs and guidance.
@@ -31,7 +31,7 @@ Homepage from user point of view:
 
 **1. ACCOUNT MANAGEMENT**
 
-The user may edit any of their information. For example, the following shows the page for editing the type of care the user provides:
+The user may edit any of their information, including personal info, the type of care they provide, and info about their children. The following shows the page for editing information about the type of care the user provides:
 
 ![](https://i.imgur.com/VgB5MaZ.png)
 
