@@ -3,7 +3,7 @@
 This is a communication and data management tool created for the North Alabama Foster Closet (NAFC).
 
 ## Background:
-The foster care system in the United States is ridden with many systematic faults, resulting in problems such as significant high school/college dropout, poverty, and homelessness rates. NAFC is an organization that seeks to support the foster care system by distributing much-needed physical items to foster families, including clothes, infant care, school supplies, bedding, and more.
+The foster care system in the United States is ridden with many systematic faults, resulting in problems such as significant high school/college dropout, poverty, and homelessness rates. NAFC is an organization that seeks to support the foster care system by distributing much-needed physical resources to foster families, including clothes, infant care, school supplies, bedding, and more. This significantly reduces the costs of foster care and allows families to focus on other important things like children’s emotional needs and guidance.
 
 NAFC's use of one universal form as a means of communication and records was feasible when the organization was serving few families, but that number has increased significantly. Facing many limitations, the organization sought an online application for more streamlined communication to and from families, tracking requests and service, and collecting data for grants – many times, these local organizations actually fail to obtain large grants due to lack of quality, convincing data about their work. This, overall, would also allow NAFC to devote more time/resources to increase their outreach and take up other large-scale projects. 
 
@@ -43,7 +43,7 @@ New information can also be added, such as adding a new child into the user's ac
 
 The process for a family to make a request for items has four parts:
 
-A) Verify general family information
+A) Verify general family information:
 
 ![](https://i.imgur.com/oxggj0K.png)
 
