@@ -26,42 +26,89 @@ The **adminManagement** module also provides better data management functionalit
 ## Application preview:
 ### User perspective
 Homepage from user point of view:
+
 ![](https://i.imgur.com/yHsEbib.png)
 
 **1. ACCOUNT MANAGEMENT**
+
 The user may edit any of their information. For example, the following shows the page for editing the type of care the user provides:
-![](https://i.imgur.com/VgB5MaZ.png)New information can also be added, such as adding a new child into the user's account:
+
+![](https://i.imgur.com/VgB5MaZ.png)
+
+New information can also be added, such as adding a new child into the user's account:
+
 ![](https://i.imgur.com/zVHDYel.png)
+
 **2. REQUESTS**
+
 The process for a family to make a request for items has four parts:
+
 A) Verify general family information
-![](https://i.imgur.com/oxggj0K.png)B) Verify children's information and select the child this request is for:
-![](https://i.imgur.com/rjEhXfk.png)C) Select needed items to request:
-![](https://i.imgur.com/KMAKMdn.png)D) Select preferred method of attaining the items:
-![](https://i.imgur.com/OK4h9cX.png)A user can also view their history of requests, including live status indicators of how much progress NAFC has made for each request:
+
+![](https://i.imgur.com/oxggj0K.png)
+
+B) Verify children's information and select the child this request is for:
+
+![](https://i.imgur.com/rjEhXfk.png)
+
+C) Select needed items to request:
+
+![](https://i.imgur.com/KMAKMdn.png)
+
+D) Select preferred method of attaining the items:
+
+![](https://i.imgur.com/OK4h9cX.png)
+
+The user can also view their history of requests, including live status indicators of how much progress NAFC has made for each request:
+
 ![](https://i.imgur.com/nVc9C3c.png)
+
 
 
 ### Admin perspective
 Admin accounts have all the options of normal users that were shown above, in addition to management functions. This is the section of the homepage with admin-only capabilities:
+
 ![](https://i.imgur.com/fbmo8Gr.png)
 
 **1. ACCOUNT MANAGEMENT**
+
 Admins can view tables/spreadsheets of many data sets in the system, including all users. Clicking column headers sorts the data in that column:
-![](https://i.imgur.com/rFFspb7.png)It's possible to edit this information as necessary. In the above image, simply by clicking on the table cell, the admin is editing the value of the "Remind Update List" column for the user "Ken Bowman," and the "Address" field for the user "George Ferry." There is also an option to view/edit the user's information, as an admin, through the user's homepage perspective:
+
+![](https://i.imgur.com/rFFspb7.png)
+
+It's possible to edit this information as necessary. In the above image, simply by clicking on the table cell, the admin is editing the value of the "Remind Update List" column for the user "Ken Bowman," and the "Address" field for the user "George Ferry." There is also an option to view/edit the user's information, as an admin, through the user's homepage perspective:
+
 ![](https://i.imgur.com/XxylXQM.png)
 
+
 **2. REQUESTS**
+
 A) The admin is given a page to view all requests in the system with sorting, filtering, and grouping options:
-![](https://i.imgur.com/vi6DkOn.png)In the image above, the option to "Generate pending requests printout" will export a Word document checklist of requested items along with all relevant family and children information, making it easy for NAFC volunteers to collect items in their warehouse. This printout generation also progresses the live request tracker of the pending requests to "being collected."
+
+![](https://i.imgur.com/vi6DkOn.png)
+
+In the image above, the option to "Generate pending requests printout" will export a Word document checklist of requested items along with all relevant family and children information, making it easy for NAFC volunteers to collect items in their warehouse. This printout generation also progresses the live request tracker of the pending requests to "being collected."
+
 B) The admin can then alert the family that their items are ready for pickup through a built-in messaging portal. This step will progress the live tracker of requests under the status of "being collected" to "ready for pickup":
-![](https://i.imgur.com/YlLNBIJ.png)As a backup in the event the email system faces an error, a system-wide notice is sent on each page of the application, and a page is provided for the admin to visit and re-initialize the service GMail account that the system uses.
+
+![](https://i.imgur.com/YlLNBIJ.png)
+
+As a backup in the event the email system faces an error, a system-wide notice is sent on each page of the application, and a page is provided for the admin to visit and re-initialize the service GMail account that the system uses.
+
 ![](https://i.imgur.com/pS8KLsg.png)
 
 C) The admin can add an entry to the distribution log to maintain a record of the quantities of each item given. This step will set the live tracker of requests under the status of "ready for pickup" to "fulfilled":
-![](https://i.imgur.com/1hknSPQ.png)D) The admin may also edit the fields in the form through which families make requests. The fields can be re-ordered, grouped, linked, and changed in type:
+
+![](https://i.imgur.com/1hknSPQ.png)
+
+D) The admin may also edit the fields in the form through which families make requests. The fields can be re-ordered, grouped, linked, and changed in type:
+
 ![](https://i.imgur.com/yRaRhnw.png)
 
 **3. LOGS**
+
 Admins may view and edit multiple different data sets or logs on the system, as shown above with the distribution log and set of users. Other logs include the volunteer hours log, donor log, and set of children's data. This is the view of the volunteer hours log:
-![](https://i.imgur.com/ohhyRg8.png)Clicking on cells in the table allows information to be edited.
+
+![](https://i.imgur.com/ohhyRg8.png)
+
+Clicking on cells in the table allows information to be edited.
